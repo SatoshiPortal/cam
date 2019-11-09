@@ -55,6 +55,7 @@ func InitDataDir() error {
 }
 
 func Lock() error {
+  // Wait for lockedfile Mutex decision of golang dev
   lockFilePath, err := utils.GetLockFilePath()
   if err != nil {
     return err
@@ -67,6 +68,7 @@ func Lock() error {
 }
 
 func Unlock() error {
+  // Wait for lockedfile Mutex decision of golang dev
   lockFilePath, err := utils.GetLockFilePath()
   if err != nil {
     return err
@@ -79,6 +81,7 @@ func Unlock() error {
 }
 
 func IsLocked() (bool, error) {
+  // Wait for lockedfile Mutex decision of golang dev
   return utils.LockFileExists()
 }
 
