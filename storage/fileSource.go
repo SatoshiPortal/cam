@@ -57,3 +57,7 @@ func (fileSource *FileSource) UnmarshalJSON(data []byte) error {
 func (fileSource *FileSource) MarshalJSON()  ([]byte, error)  {
   return json.Marshal( fileSource.location )
 }
+
+func  (fileSource *FileSource) Cleanup() {
+
+}

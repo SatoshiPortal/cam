@@ -10,6 +10,7 @@ const SOURCE_TYPE_FILE = "file"
 type ISource interface {
   GetType() string
   Update() error
+  Cleanup()
   String() string
   GetAbsolutePath() string
   GetHash() string

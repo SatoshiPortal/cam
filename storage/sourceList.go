@@ -81,6 +81,7 @@ func (sourceList *SourceList) RemoveSource( sourceString string ) error {
   if sourceIndex == -1 {
     return errors.NO_SUCH_SOURCE
   }
+  sourceList.Sources[sourceIndex].Cleanup()
   sourceList.Sources = append(sourceList.Sources[:sourceIndex], sourceList.Sources[sourceIndex+1:]...)
   return nil
 }

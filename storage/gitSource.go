@@ -114,3 +114,11 @@ func (gitSource *GitSource) UnmarshalJSON(data []byte) error {
 func (gitSource *GitSource) MarshalJSON()  ([]byte, error)  {
   return json.Marshal( gitSource.location )
 }
+
+func (gitSource *GitSource) Cleanup() {
+  dir := gitSource.GetAbsolutePath()
+  err := os.RemoveAll(dir)
+  if err != nil {
+    output.Warningf("git source cleanup error: %s", err.Error() )
+  }
+}
