@@ -9,12 +9,12 @@ func InitSourceCommands( app *cli.App ) {
   app.Commands = append( app.Commands, cli.Command{
     Name:    "source",
     Aliases: []string{"s"},
-    Usage:   "source (list|add|delete)",
+    Usage:   "source commands",
     Subcommands: []cli.Command{
       {
         Name:    "list",
         Aliases: []string{"l"},
-        Usage:   "lists available source",
+        Usage:   "lists sources",
         Action: actions.ActionWrapper(actions.Source_list),
       },
       {

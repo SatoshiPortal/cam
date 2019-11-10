@@ -9,12 +9,12 @@ func InitAppCommands( app *cli.App ) {
   app.Commands = append( app.Commands, cli.Command{
     Name:    "app",
     Aliases: []string{"a"},
-    Usage:   "app (list|update)",
+    Usage:   "app commands",
     Subcommands: []cli.Command{
       {
         Name:    "list",
         Aliases: []string{"l"},
-        Usage:   "lists installed apps",
+        Usage:   "lists available apps",
         Action: actions.ActionWrapper(actions.App_list),
       },
       {
