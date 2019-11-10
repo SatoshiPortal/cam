@@ -24,7 +24,7 @@ func ActionWrapper( action func(c *cli.Context) error, boolParams ...bool ) func
 
     // check for write access
     if needsWriteAccess {
-      if isLocked, _ := storage.IsLocked(); isLocked {
+      if storage.IsLocked() {
         return errors.DATADIR_IS_LOCKED
       }
       err := storage.Lock()

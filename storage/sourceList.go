@@ -42,7 +42,7 @@ func LoadSourceFile( path string ) (*SourceList, error) {
     if strings.HasPrefix( text, "#" ) {
       continue
     }
-    err := r.AddSource(text)
+    err = r.AddSource(text)
     if err != nil {
       output.Warning( err.Error() )
     }
@@ -114,9 +114,5 @@ func (sourceList *SourceList) Save() error {
     }
   }
 
-  return nil
-}
-
-func (sourceList *SourceList) Clone() error {
   return nil
 }

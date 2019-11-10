@@ -20,11 +20,7 @@ func Global_init(c *cli.Context) error {
 }
 
 func Global_update(c *cli.Context) error {
-  sourceFilePath, err := utils.GetSourceFilePath()
-  if err != nil {
-    return err
-  }
-  sourceList, err := storage.LoadSourceFile( sourceFilePath )
+  sourceList, err := storage.LoadSourceFile( utils.GetSourceFilePath() )
 
   if err != nil {
     return err
@@ -36,6 +32,21 @@ func Global_update(c *cli.Context) error {
     if err != nil {
       output.Errorf( "Error updating source: %s", sourceList.Sources[i].String() )
     }
+  }
+
+
+  repoIndex, err := storage.NewRepoIndex()
+
+  if err != nil {
+    output.Notice( "Recreating repo index")
+  } else {
+    output.Notice( "Building repo index")
+  }
+
+  err = repoIndex.Build()
+
+  if err != nil {
+    return err
   }
 
   return nil

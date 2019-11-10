@@ -13,9 +13,22 @@ type GitSource struct {
 }
 
 func NewGitSource( url string ) *GitSource {
-  return &GitSource{
+  source := &GitSource{
     Source{location: url},
   }
+  source.BuildHash()
+  return source
+}
+
+func ( gitSource *GitSource ) BuildHash() {
+  bytes := make( []byte, 0 )
+  bytes = append( bytes, []byte(SOURCE_TYPE_GIT)... )
+  bytes = append( bytes, []byte(gitSource.location)... )
+  gitSource.hash = utils.BuildHash( &bytes )
+}
+
+func ( gitSource *GitSource ) GetHash() string {
+  return gitSource.hash
 }
 
 func ( gitSource *GitSource ) GetType() string {
@@ -26,12 +39,10 @@ func ( gitSource *GitSource ) Update() error {
   url := strings.Replace( gitSource.location, "git://", "https://", 1)
   relativeRepoDir := strings.Replace( gitSource.location, "git://", "", 1)
 
-  targetDir, err := utils.GetRepoDirPathFor( relativeRepoDir )
-  if err != nil {
-    return err
-  }
+  targetDir := utils.GetRepoDirPathFor( relativeRepoDir )
 
   var gitRepo *git.Repository
+  var err error
 
   if repoDirExists, _ := utils.RepoExists( relativeRepoDir ); !repoDirExists {
     err = os.MkdirAll( targetDir, 0755)
@@ -77,13 +88,13 @@ func ( gitSource *GitSource ) Update() error {
 
   output.Notice( commit.String() )
 
-  if err != nil {
-    return err
-  }
-
   return nil
 }
 
 func ( gitSource *GitSource ) String() string {
   return gitSource.location
+}
+
+func ( gitSource *GitSource ) GetAbsolutePath() string {
+  return utils.GetRepoDirPathFor( strings.Replace( gitSource.location, "git://", "", 1) )
 }

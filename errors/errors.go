@@ -15,3 +15,11 @@ var DUPLICATE_SOURCE = goErrors.New( "duplicate source" )
 
 var SOURCE_ADD_NO_SOURCE = goErrors.New( "source add: no source" )
 var SOURCE_DELETE_NO_SOURCE = goErrors.New( "source delete: no source" )
+
+var NO_SUCH_APP = goErrors.New( "no such app" )
+var DUPLICATE_APP = goErrors.New( "duplicate app" )
+
+var SOURCE_ADD_NO_APP = goErrors.New( "source add: no app" )
+var SOURCE_DELETE_NO_APP = goErrors.New( "source delete: no app" )
+
+var REPO_INDEX_DOES_NOT_EXIST = goErrors.New( "repo index does not exist" )

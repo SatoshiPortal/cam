@@ -9,11 +9,7 @@ import (
 )
 
 func Source_delete(c *cli.Context) error {
-  sourceFilePath, err := utils.GetSourceFilePath()
-  if err != nil {
-    return err
-  }
-  sourceList, err := storage.LoadSourceFile( sourceFilePath )
+  sourceList, err := storage.LoadSourceFile( utils.GetSourceFilePath() )
 
   if err != nil {
     return err

@@ -6,31 +6,22 @@ import (
 )
 
 func InitDataDir() error {
-  dataDir, err := utils.GetDataDirPath()
+  dataDir := utils.GetDataDirPath()
+
+  err := os.MkdirAll( dataDir, 0755)
   if err != nil {
     return err
   }
-  err = os.MkdirAll( dataDir, 0755)
-  if err != nil {
-    return err
-  }
-  repoDir, err := utils.GetRepoDirPath()
-  if err != nil {
-    return err
-  }
+  repoDir := utils.GetRepoDirPath()
+
   err = os.MkdirAll( repoDir, 0755)
   if err != nil {
     return err
   }
 
   // check if state file exists:
-  stateFileExists, _ := utils.StateFileExists()
-  if !stateFileExists {
-    stateFilePath, err := utils.GetStateFilePath()
-    if err != nil {
-      return err
-    }
-    stateFile := NewStateFile( stateFilePath )
+  if !utils.StateFileExists() {
+    stateFile := NewStateFile( utils.GetStateFilePath() )
     err = stateFile.Save()
     if err != nil {
       return err
@@ -38,13 +29,8 @@ func InitDataDir() error {
   }
 
   // check if source file exists:
-  sourceFileExists, _ := utils.SourceFileExists()
-  if !sourceFileExists {
-    sourceFilePath, err := utils.GetSourceFilePath()
-    if err != nil {
-      return err
-    }
-    sourceFile := NewSourceList( sourceFilePath )
+  if !utils.SourceFileExists() {
+    sourceFile := NewSourceList( utils.GetSourceFilePath() )
     err = sourceFile.Save()
     if err != nil {
       return err
@@ -56,11 +42,7 @@ func InitDataDir() error {
 
 func Lock() error {
   // Wait for lockedfile Mutex decision of golang dev
-  lockFilePath, err := utils.GetLockFilePath()
-  if err != nil {
-    return err
-  }
-  _, err = os.Create( lockFilePath )
+  _, err := os.Create( utils.GetLockFilePath() )
   if err != nil {
     return err
   }
@@ -69,19 +51,14 @@ func Lock() error {
 
 func Unlock() error {
   // Wait for lockedfile Mutex decision of golang dev
-  lockFilePath, err := utils.GetLockFilePath()
-  if err != nil {
-    return err
-  }
-  err = os.RemoveAll( lockFilePath )
+  err := os.RemoveAll( utils.GetLockFilePath() )
   if err != nil {
     return err
   }
   return nil
 }
 
-func IsLocked() (bool, error) {
+func IsLocked() bool {
   // Wait for lockedfile Mutex decision of golang dev
   return utils.LockFileExists()
 }
-

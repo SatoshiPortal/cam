@@ -10,7 +10,8 @@ import (
 type State struct {
   Version string `json:"version"`
   LastUpdate time.Time `json:"lastUpdate"`
-  IsLocked bool `json:"-"`
+  Apps *AppList  `json:"apps"`
+  InstalledApps *AppList `json:"installedApps"`
 }
 
 type StateFile struct {
@@ -23,7 +24,6 @@ func NewStateFile( path string ) *StateFile {
     Path: path,
     State: &State{
       Version:    globals.VERSION,
-      IsLocked:   false,
       LastUpdate: time.Now(),
     },
   }

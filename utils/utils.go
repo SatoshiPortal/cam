@@ -1,41 +1,41 @@
 package utils
 
 import (
+  "encoding/base64"
   "github.com/schulterklopfer/cna/errors"
   "github.com/schulterklopfer/cna/globals"
+  "golang.org/x/crypto/ripemd160"
+  "hash"
   "os"
   "path/filepath"
+  "strings"
 )
 
-func fileExists( file string ) (bool,error) {
+var hasher hash.Hash
+
+func fileExists( file string ) bool {
   dataDirExists, err := DataDirExists()
 
   if err != nil {
-    return false,err
+    return false
   }
 
   if !dataDirExists {
-    return false, errors.DATADIR_DOES_NOT_EXIST
+    return false
   }
 
-  dataDir, err := GetDataDirPath()
-  if err != nil {
-    return false, err
-  }
+  dataDir := GetDataDirPath()
 
   _, err = os.Stat(filepath.Join( dataDir, file ))
   if  err != nil  {
-    return false,err
+    return false
   }
 
-  return true,nil
+  return true
 }
 
 func dirExists( d string ) (bool, error) {
-  dir, err := getPath( d )
-  if err != nil {
-    return false, err
-  }
+  dir := getPath( d )
 
   fileInfo, err := os.Stat(dir)
   if  err != nil  {
@@ -48,20 +48,16 @@ func dirExists( d string ) (bool, error) {
   return true, nil
 }
 
-func getPath( file string ) (string,error) {
-  dataDir, err := GetDataDirPath()
-  if err != nil {
-    return "", err
-  }
-  return filepath.Join( dataDir, file ),nil
+func getPath( file string ) string {
+  return filepath.Join( GetDataDirPath(), file )
 }
 
-func GetDataDirPath() (string, error) {
+func GetDataDirPath() string {
   cwd, err := os.Getwd()
   if err != nil {
-    return "",err
+    panic( err )
   }
-  return filepath.Join( cwd, globals.DATA_DIR ), nil
+  return filepath.Join( cwd, globals.DATA_DIR )
 }
 
 func DataDirExists() (bool, error) {
@@ -76,40 +72,44 @@ func RepoExists( repoDir string ) (bool,error) {
   return dirExists( filepath.Join(globals.REPO_DIR,repoDir) )
 }
 
-func StateFileExists() (bool, error) {
+func StateFileExists() bool {
   return fileExists( globals.STATE_FILE )
 }
 
-func SourceFileExists() (bool, error) {
+func SourceFileExists() bool {
   return fileExists( globals.SOURCE_FILE )
 }
 
-func LockFileExists() (bool, error) {
+func LockFileExists() bool {
   return fileExists( globals.LOCK_FILE )
 }
 
-func GetStateFilePath() (string, error) {
+func RepoIndexFileExists() bool {
+  return fileExists( globals.REPO_INDEX_FILE )
+}
+
+func GetStateFilePath() string {
   return getPath(globals.STATE_FILE)
 }
 
-func GetLockFilePath() (string, error) {
+func GetLockFilePath() string {
   return getPath(globals.LOCK_FILE)
 }
 
-func GetSourceFilePath() (string, error) {
+func GetSourceFilePath() string {
   return getPath(globals.SOURCE_FILE)
 }
 
-func GetRepoDirPath() (string, error) {
+func GetRepoIndexFilePath() string {
+  return getPath( globals.REPO_INDEX_FILE )
+}
+
+func GetRepoDirPath() string {
   return getPath(globals.REPO_DIR)
 }
 
-func GetRepoDirPathFor( repo string ) (string, error) {
-  repoDir, err := GetRepoDirPath()
-  if err != nil {
-    return "",err
-  }
-  return filepath.Join(repoDir,repo), nil
+func GetRepoDirPathFor( repo string ) string {
+  return filepath.Join( GetRepoDirPath(),repo)
 }
 
 func ValidDataDirExists() bool {
@@ -121,11 +121,11 @@ func ValidDataDirExists() bool {
     return false
   }
 
-  if stateFileExists, _ := StateFileExists(); !stateFileExists {
+  if !StateFileExists() {
     return false
   }
 
-  if sourceFileExists, _ := StateFileExists(); !sourceFileExists {
+  if !SourceFileExists() {
     return false
   }
 
@@ -136,3 +136,12 @@ func ValidDataDirExists() bool {
   return true
 
 }
+
+func BuildHash( bytes *[]byte ) string {
+  if hasher == nil {
+    hasher = ripemd160.New()
+  }
+  hasher.Write(*bytes)
+  return strings.Trim(base64.URLEncoding.EncodeToString(hasher.Sum(nil)), "=" )
+}
+
