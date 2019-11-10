@@ -37,7 +37,7 @@ func Global_update(c *cli.Context) error {
 
   repoIndex, err := storage.NewRepoIndex()
 
-  if err != nil {
+  if err == nil {
     output.Notice( "Recreating repo index")
   } else {
     output.Notice( "Building repo index")
