@@ -5,13 +5,10 @@ import (
   "github.com/schulterklopfer/cna/errors"
   "github.com/schulterklopfer/cna/globals"
   "golang.org/x/crypto/ripemd160"
-  "hash"
   "os"
   "path/filepath"
   "strings"
 )
-
-var hasher hash.Hash
 
 func fileExists( file string ) bool {
   dataDirExists, err := DataDirExists()
@@ -138,9 +135,7 @@ func ValidDataDirExists() bool {
 }
 
 func BuildHash( bytes *[]byte ) string {
-  if hasher == nil {
-    hasher = ripemd160.New()
-  }
+  hasher := ripemd160.New()
   hasher.Write(*bytes)
   return strings.Trim(base64.URLEncoding.EncodeToString(hasher.Sum(nil)), "=" )
 }
