@@ -19,6 +19,7 @@ type App struct {
   Source ISource `json:"source"`
   Candidates []*AppCandidate `json:"candidates"`
   hash string `json:"-"`
+  clientID string `json:"-"`
 }
 
 type AppCandidate struct {
@@ -48,8 +49,12 @@ func (app *App) BuildHash() {
 
   bytes := make( []byte, 0 )
   bytes = append( bytes, []byte(app.Label)... )
-  bytes = append( bytes, []byte(app.Name)... )
   bytes = append( bytes, []byte(app.Source.GetHash())... )
+  app.clientID = utils.BuildHash( &bytes )
+
+  bytes = bytes[0:0]
+  bytes = append( bytes, []byte(app.clientID)... )
+  bytes = append( bytes, []byte(app.Name)... )
 
   for i:=0; i< len(candidates); i++ {
     candidates[i].BuildHash()
@@ -62,6 +67,11 @@ func (app *App) BuildHash() {
 func (app *App) GetHash() string {
   return app.hash
 }
+
+func (app *App) GetClientID() string {
+  return app.clientID
+}
+
 
 /** AppCandidate **/
 

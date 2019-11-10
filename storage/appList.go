@@ -31,6 +31,7 @@ func (appList *AppList) buildLabel( appIndex int ) {
   app := appList.Apps[appIndex]
   addIndexToLabel( &appList.Labels, app.Label, appIndex )
   addIndexToLabel( &appList.Labels, app.GetHash(), appIndex )
+  addIndexToLabel( &appList.Labels, app.GetClientID(), appIndex )
 }
 
 func addIndexToLabel( dict *map[string][]int, label string, index int ) {
