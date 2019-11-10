@@ -45,7 +45,7 @@ func App_search(c *cli.Context) error {
   table.SetRowSeparator("")
   table.SetHeaderLine(false)
   table.SetBorder(false)
-  table.SetTablePadding("\t\t")
+  table.SetTablePadding("  ")
   table.SetNoWhiteSpace(true)
 
   for i:=0; i<len(apps); i++ {
