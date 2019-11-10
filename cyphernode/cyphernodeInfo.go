@@ -25,7 +25,11 @@ type DockerImage struct {
 }
 
 func (dockerImage *DockerImage) UnmarshalJSON(data []byte) error {
-  v := strings.Trim( string(data), "\"")
+  var v string
+
+  if err := json.Unmarshal(data, &v); err != nil {
+    return err
+  }
 
   arr := strings.Split( v, ":" )
   if len(arr) == 0 {
@@ -37,8 +41,5 @@ func (dockerImage *DockerImage) UnmarshalJSON(data []byte) error {
     dockerImage.Version = version.NewVersion( arr[1] )
   }
 
-  if err := json.Unmarshal(data, &v); err != nil {
-    return err
-  }
   return nil
 }

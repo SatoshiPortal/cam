@@ -13,7 +13,7 @@ import (
 )
 
 type RepoIndex struct {
-  Apps *AppList `json:"apps"`
+  AppList
 }
 
 func NewRepoIndex() (*RepoIndex, error) {
@@ -38,6 +38,8 @@ func (repoIndex *RepoIndex) Load() error {
   if err != nil {
     return err
   }
+  repoIndex.BuildLabels()
+  repoIndex.BuildAppHashes()
   return nil
 }
 
@@ -150,7 +152,7 @@ func (repoIndex *RepoIndex) Build() error {
       }
     }
   }
-
+  appList.BuildLabels()
   repoIndexJsonBytes, err := json.MarshalIndent( appList, "", "  " )
   err = ioutil.WriteFile(utils.GetRepoIndexFilePath(), repoIndexJsonBytes, 0644)
   if err != nil {

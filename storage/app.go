@@ -1,6 +1,7 @@
 package storage
 
 import (
+  "encoding/json"
   "github.com/schulterklopfer/cna/globals"
   "github.com/schulterklopfer/cna/utils"
   "github.com/schulterklopfer/cna/version"
@@ -15,7 +16,7 @@ type App struct {
   URL string `json:"url"`
   Email string `json:"email"`
   Latest string `json:"latest"`
-  Source ISource `json:"-"`
+  Source ISource `json:"source"`
   Candidates []*AppCandidate `json:"candidates"`
   hash string `json:"-"`
 }
@@ -110,4 +111,50 @@ func (appDependency *AppDependency) BuildHash() {
 func (appDependency *AppDependency) GetHash() string {
   // TODO: build hash from sorted app keys
   return appDependency.hash
+}
+
+func (app *App) UnmarshalJSON(data []byte) error {
+  /** Big hack
+    we need to to this, cause json.Unmarhsal is unable to assign
+    the Source property because of the ISource interface
+   **/
+
+  intermediate := make( map[string]interface{} )
+  err := json.Unmarshal( data, &intermediate )
+  if err != nil {
+    return err
+  }
+
+  for key, value := range intermediate {
+    switch key {
+    case "source":
+      app.Source = SourceFromString( value.(string) )
+      break
+    case "candidates":
+      candidatesJsonBytes, err := json.Marshal( value )
+      if err != nil {
+        return err
+      }
+      var candidates []*AppCandidate
+      err = json.Unmarshal( candidatesJsonBytes, &candidates)
+      if err != nil {
+        return err
+      }
+      app.Candidates = candidates
+      break
+    case "label":
+      app.Label = value.(string)
+    case "name":
+      app.Name = value.(string)
+    case "path":
+      app.Path = value.(string)
+    case "url":
+      app.URL = value.(string)
+    case "email":
+      app.Email = value.(string)
+    case "latest":
+      app.Latest = value.(string)
+    }
+  }
+  return nil
 }

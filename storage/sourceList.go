@@ -6,7 +6,6 @@ import (
   "github.com/schulterklopfer/cna/errors"
   "github.com/schulterklopfer/cna/globals"
   "github.com/schulterklopfer/cna/output"
-  "net/url"
   "os"
   "strings"
 )
@@ -70,20 +69,9 @@ func (sourceList *SourceList) AddSource( sourceString string ) error {
     return errors.DUPLICATE_SOURCE
   }
 
-  sourceUrl, err := url.Parse( sourceString )
-  if err != nil {
-    return err
-  }
-
-  switch sourceUrl.Scheme {
-  case SOURCE_TYPE_GIT:
-    sourceList.Sources = append( sourceList.Sources, NewGitSource( sourceString ) )
-    break
-  case SOURCE_TYPE_FILE:
-    sourceList.Sources = append( sourceList.Sources, NewFileSource( sourceString ) )
-    break
-  default:
-    return errors.NO_SUCH_SOURCE_TYPE
+  source := SourceFromString( sourceString )
+  if source != nil {
+    sourceList.Sources = append( sourceList.Sources, source )
   }
   return nil
 }

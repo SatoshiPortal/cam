@@ -6,6 +6,7 @@ require (
 	github.com/fatih/color v1.7.0
 	github.com/mattn/go-colorable v0.1.4 // indirect
 	github.com/mattn/go-isatty v0.0.10 // indirect
+	github.com/olekukonko/tablewriter v0.0.2
 	github.com/pkg/errors v0.8.1
 	github.com/urfave/cli v1.22.1
 	golang.org/x/crypto v0.0.0-20191106202628-ed6320f186d4

@@ -15,7 +15,7 @@ func Source_list(c *cli.Context) error {
   }
 
   for i:=0; i<len(sourceList.Sources); i++ {
-    output.Noticef( "[%24s] %s\n", sourceList.Sources[i].GetHash(), sourceList.Sources[i].String() )
+    output.Noticef( "%s (%24s)\n", sourceList.Sources[i].String(), sourceList.Sources[i].GetHash() )
   }
 
   return nil

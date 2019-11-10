@@ -1,6 +1,7 @@
 package storage
 
 import (
+  "encoding/json"
   "github.com/schulterklopfer/cna/output"
   "github.com/schulterklopfer/cna/utils"
   "gopkg.in/src-d/go-git.v4"
@@ -22,7 +23,6 @@ func NewGitSource( url string ) *GitSource {
 
 func ( gitSource *GitSource ) BuildHash() {
   bytes := make( []byte, 0 )
-  bytes = append( bytes, []byte(SOURCE_TYPE_GIT)... )
   bytes = append( bytes, []byte(gitSource.location)... )
   gitSource.hash = utils.BuildHash( &bytes )
 }
@@ -97,4 +97,18 @@ func ( gitSource *GitSource ) String() string {
 
 func ( gitSource *GitSource ) GetAbsolutePath() string {
   return utils.GetRepoDirPathFor( strings.Replace( gitSource.location, "git://", "", 1) )
+}
+
+func (gitSource *GitSource) UnmarshalJSON(data []byte) error {
+  var v string
+  err := json.Unmarshal( data, &v )
+  if err != nil {
+    return err
+  }
+  gitSource.location = v
+  return nil
+}
+
+func (gitSource *GitSource) MarshalJSON()  ([]byte, error)  {
+  return json.Marshal( gitSource.location )
 }

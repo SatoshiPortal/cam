@@ -2,13 +2,19 @@ package actions
 
 import (
   "github.com/olekukonko/tablewriter"
+  "github.com/schulterklopfer/cna/errors"
   "github.com/schulterklopfer/cna/storage"
   "github.com/urfave/cli"
   "os"
   "sort"
+  "strings"
 )
 
-func App_list(c *cli.Context) error {
+func App_search(c *cli.Context) error {
+
+  if len(c.Args()) == 0 {
+    return errors.APP_SEARCH_NO_SEARCH_TERM
+  }
 
   repoIndex, err := storage.NewRepoIndex()
 
@@ -22,7 +28,9 @@ func App_list(c *cli.Context) error {
     return err
   }
 
-  apps := repoIndex.Apps[:]
+  searchString := strings.Trim( c.Args().Get(0), " \n")
+
+  apps := repoIndex.Search( searchString )
   sort.Slice(apps, func(i, j int) bool {
     return apps[i].Label < apps[j].Label
   })
@@ -45,6 +53,7 @@ func App_list(c *cli.Context) error {
   }
 
   table.Render() // Send output
+
   return nil
 
 }

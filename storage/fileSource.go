@@ -1,6 +1,7 @@
 package storage
 
 import (
+  "encoding/json"
   "github.com/schulterklopfer/cna/utils"
   "strings"
 )
@@ -19,7 +20,6 @@ func NewFileSource( url string ) *FileSource {
 
 func ( fileSource *FileSource ) BuildHash() {
   bytes := make( []byte, 0 )
-  bytes = append( bytes, []byte(SOURCE_TYPE_FILE)... )
   bytes = append( bytes, []byte(fileSource.location)... )
   fileSource.hash = utils.BuildHash( &bytes )
 }
@@ -42,4 +42,18 @@ func ( fileSource *FileSource ) String() string {
 
 func ( fileSource *FileSource ) GetAbsolutePath() string {
   return strings.Replace( fileSource.location, "file://", "", 1)
+}
+
+func (fileSource *FileSource) UnmarshalJSON(data []byte) error {
+  var v string
+  err := json.Unmarshal( data, &v )
+  if err != nil {
+    return err
+  }
+  fileSource.location = v
+  return nil
+}
+
+func (fileSource *FileSource) MarshalJSON()  ([]byte, error)  {
+  return json.Marshal( fileSource.location )
 }

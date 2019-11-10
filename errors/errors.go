@@ -23,3 +23,5 @@ var SOURCE_ADD_NO_APP = goErrors.New( "source add: no app" )
 var SOURCE_DELETE_NO_APP = goErrors.New( "source delete: no app" )
 
 var REPO_INDEX_DOES_NOT_EXIST = goErrors.New( "repo index does not exist" )
+
+var APP_SEARCH_NO_SEARCH_TERM = goErrors.New( "app search: no search term" )
