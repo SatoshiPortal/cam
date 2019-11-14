@@ -6,7 +6,6 @@ import (
   "github.com/schulterklopfer/cna/globals"
   "github.com/schulterklopfer/cna/output"
   "github.com/schulterklopfer/cna/utils"
-  "github.com/schulterklopfer/cna/version"
   "io/ioutil"
   "os"
   "path/filepath"
@@ -137,9 +136,11 @@ func (repoIndex *RepoIndex) Build() error {
         if err != nil {
           continue
         }
-        output.Warningf( "App candidate version mismatch. Ignoring %s@%s from %s",  )
-        candidate.Version = version.NewVersion(versionsDFile.Name())
-        candidates = append( candidates, &candidate )
+        if candidate.Version.Raw != versionsDFile.Name() {
+          output.Warningf( "App candidate version mismatch. Ignoring %s@%s from %s\n", app.Label, candidate.Version.Raw, app.Source.String()  )
+        } else {
+          candidates = append( candidates, &candidate )
+        }
       }
 
       app.Candidates = candidates
