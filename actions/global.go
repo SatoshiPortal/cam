@@ -12,6 +12,10 @@ func Global_init(c *cli.Context) error {
   if err != nil {
     return err
   }
+  err = storage.InitInstallDir()
+  if err != nil {
+    return err
+  }
   err = storage.Unlock()
   if err != nil {
     return err

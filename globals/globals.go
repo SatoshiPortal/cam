@@ -19,3 +19,6 @@ const LOCK_FILE = "state.lock"
 const APP_DESCRIPTION_FILE = "app.json"
 const APP_VERSIONS_DIR = "versions"
 const CANDIDATE_DESCRIPTION_FILE = "candidate.json"
+
+const INSTALL_DIR_ENV_KEY = "CYPHERAPPS_INSTALL_DIR"
+const INSTALLED_APPS_FILE = "index.json"

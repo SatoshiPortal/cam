@@ -10,39 +10,30 @@ import (
   "strings"
 )
 
-func fileExists( file string ) bool {
-  dataDirExists, err := DataDirExists()
-
-  if err != nil {
+func fileExists( path string ) bool {
+  if _, err := os.Stat( path ); err != nil {
     return false
   }
-
-  if !dataDirExists {
-    return false
-  }
-
-  dataDir := GetDataDirPath()
-
-  _, err = os.Stat(filepath.Join( dataDir, file ))
-  if  err != nil  {
-    return false
-  }
-
   return true
 }
 
-func dirExists( d string ) (bool, error) {
-  dir := getPath( d )
-
-  fileInfo, err := os.Stat(dir)
+func dirExists( path string ) (bool, error) {
+  fileInfo, err := os.Stat( path )
   if  err != nil  {
     return false,err
   }
-
   if !fileInfo.IsDir() {
-    return true, errors.DATADIR_IS_NOT_A_DIRECTORY
+    return true, errors.DIR_IS_NOT_A_DIRECTORY
   }
   return true, nil
+}
+
+func fileExistsInDataDir( file string ) bool {
+  return fileExists( filepath.Join( GetDataDirPath(), file ) )
+}
+
+func dirExistsInDataDir( d string ) (bool, error) {
+  return dirExists( getPath( d ) )
 }
 
 func getPath( file string ) string {
@@ -57,32 +48,56 @@ func GetDataDirPath() string {
   return filepath.Join( cwd, globals.DATA_DIR )
 }
 
+func GetInstallDirPath() string {
+  installDir := os.Getenv( globals.INSTALL_DIR_ENV_KEY )
+  if installDir  == "" {
+    cwd, err := os.Getwd()
+    if err != nil {
+      panic( err )
+    }
+    installDir = filepath.Join( cwd, "install" )
+  }
+  return installDir
+}
+
 func DataDirExists() (bool, error) {
-  return dirExists( "" )
+  return dirExistsInDataDir( "" )
+}
+
+func InstallDirExists() (bool, error) {
+  return dirExists( GetInstallDirPath() )
 }
 
 func RepoDirExists() (bool, error) {
-  return dirExists( globals.REPO_DIR )
+  return dirExistsInDataDir( globals.REPO_DIR )
 }
 
 func RepoExists( repoDir string ) (bool,error) {
-  return dirExists( filepath.Join(globals.REPO_DIR,repoDir) )
+  return dirExistsInDataDir( filepath.Join(globals.REPO_DIR,repoDir) )
 }
 
 func StateFileExists() bool {
-  return fileExists( globals.STATE_FILE )
+  return fileExistsInDataDir( globals.STATE_FILE )
+}
+
+func InstalledAppsFileExists() bool {
+  return fileExists( GetInstallDirPath() )
 }
 
 func SourceFileExists() bool {
-  return fileExists( globals.SOURCE_FILE )
+  return fileExistsInDataDir( globals.SOURCE_FILE )
 }
 
 func LockFileExists() bool {
-  return fileExists( globals.LOCK_FILE )
+  return fileExistsInDataDir( globals.LOCK_FILE )
 }
 
 func RepoIndexFileExists() bool {
-  return fileExists( globals.REPO_INDEX_FILE )
+  return fileExistsInDataDir( globals.REPO_INDEX_FILE )
+}
+
+func GetInstalledAppsIndexFilePath() string {
+  return filepath.Join( GetInstallDirPath(), globals.INSTALLED_APPS_FILE )
 }
 
 func GetStateFilePath() string {

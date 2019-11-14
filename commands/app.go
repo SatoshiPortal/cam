@@ -14,8 +14,14 @@ func InitAppCommands( app *cli.App ) {
       {
         Name:    "list",
         Aliases: []string{"l"},
-        Usage:   "lists available apps",
+        Usage:   "list installed apps",
         Action: actions.ActionWrapper(actions.App_list),
+      },
+      {
+        Name:    "install",
+        Aliases: []string{"i"},
+        Usage:   "installs an app",
+        Action: actions.ActionWrapper(actions.App_install),
       },
       {
         Name:    "search",

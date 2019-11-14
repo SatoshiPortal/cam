@@ -30,13 +30,13 @@ func App_search(c *cli.Context) error {
 
   searchString := strings.Trim( c.Args().Get(0), " \n")
 
-  apps := repoIndex.Search( searchString )
+  apps := repoIndex.Search( searchString, false )
   sort.Slice(apps, func(i, j int) bool {
     return apps[i].Label < apps[j].Label
   })
 
   table := tablewriter.NewWriter(os.Stdout)
-  table.SetHeader([]string{"Source", "Label", "Name", "ClientID", "Hash"})
+  table.SetHeader([]string{"Source", "Label", "Name", "Hash"})
   table.SetAutoFormatHeaders(true)
   table.SetHeaderAlignment(tablewriter.ALIGN_LEFT)
   table.SetAlignment(tablewriter.ALIGN_LEFT)
@@ -49,7 +49,7 @@ func App_search(c *cli.Context) error {
   table.SetNoWhiteSpace(true)
 
   for i:=0; i<len(apps); i++ {
-    table.Append( []string{ apps[i].Source.String(),apps[i].Label,apps[i].Name,apps[i].GetClientID(),apps[i].GetHash()} )
+    table.Append( []string{ apps[i].Source.String(),apps[i].Label,apps[i].Name,apps[i].GetHash()} )
   }
 
   table.Render() // Send output

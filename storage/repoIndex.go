@@ -51,8 +51,6 @@ func (repoIndex *RepoIndex) Build() error {
     return err
   }
 
-  appList := new( AppList )
-
   for i:=0; i<len(sourceList.Sources); i++ {
 
     absolutePath := sourceList.Sources[i].GetAbsolutePath()
@@ -139,27 +137,31 @@ func (repoIndex *RepoIndex) Build() error {
         if err != nil {
           continue
         }
+        output.Warningf( "App candidate version mismatch. Ignoring %s@%s from %s",  )
         candidate.Version = version.NewVersion(versionsDFile.Name())
         candidates = append( candidates, &candidate )
       }
 
       app.Candidates = candidates
       app.BuildHash()
-      err = appList.AddApp( &app )
+      err = repoIndex.AddApp( &app )
 
       if err != nil {
         continue
       }
     }
   }
-  appList.BuildLabels()
+  repoIndex.BuildLabels()
 
-  repoIndexJsonBytes, err := json.MarshalIndent( appList, "", "  " )
+  return repoIndex.Save()
+
+}
+
+func (repoIndex *RepoIndex) Save() error {
+  repoIndexJsonBytes, err := json.MarshalIndent( repoIndex, "", "  " )
   err = ioutil.WriteFile(utils.GetRepoIndexFilePath(), repoIndexJsonBytes, 0644)
   if err != nil {
     return err
   }
-
   return nil
-
 }

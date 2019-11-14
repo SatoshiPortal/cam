@@ -31,7 +31,6 @@ func (appList *AppList) buildLabel( appIndex int ) {
   app := appList.Apps[appIndex]
   addIndexToLabel( &appList.Labels, app.Label, appIndex )
   addIndexToLabel( &appList.Labels, app.GetHash(), appIndex )
-  addIndexToLabel( &appList.Labels, app.GetClientID(), appIndex )
 }
 
 func addIndexToLabel( dict *map[string][]int, label string, index int ) {
@@ -61,11 +60,19 @@ func (appList *AppList) RemoveApp( app *App ) error {
   return nil
 }
 
-func (appList *AppList) Search( text string ) []*App {
+func (appList *AppList) Search( text string, exact bool ) []*App {
   apps := make( []*App, 0 )
 
   for label, indeces := range appList.Labels {
-    if strings.Contains( label, text ) {
+
+    found := false
+    if exact {
+      found = label==text
+    } else {
+      found = strings.Contains( label, text )
+    }
+
+    if found {
       for i:=0; i<len(indeces); i++ {
         apps = append( apps, appList.Apps[indeces[i]])
       }
