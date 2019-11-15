@@ -29,6 +29,31 @@ func InitAppCommands( app *cli.App ) {
         Usage:   "search for an app in all the sources",
         Action: actions.ActionWrapper(actions.App_search, true),
       },
+      {
+        Name:    "key",
+        Aliases: []string{"k"},
+        Usage:   "handle cypherapp keys",
+        Subcommands: []cli.Command{
+          {
+            Name:    "list",
+            Aliases: []string{"l"},
+            Usage:   "list keys for an app",
+            Action: actions.ActionWrapper(actions.App_keyList),
+          },
+          {
+            Name:    "add",
+            Aliases: []string{"a"},
+            Usage:   "add key to app",
+            Action: actions.ActionWrapper(actions.App_keyAdd),
+          },
+          {
+            Name:    "delete",
+            Aliases: []string{"d"},
+            Usage:   "delete key from app",
+            Action: actions.ActionWrapper(actions.App_keyDelete),
+          },
+        },
+      },
     },
   },
   )

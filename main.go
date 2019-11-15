@@ -22,6 +22,7 @@ func main() {
   commands.InitGlobalCommands( app )
   commands.InitAppCommands( app )
   commands.InitSourceCommands( app )
+  commands.InitKeyCommands( app )
 
   err := app.Run(os.Args)
   if err != nil {
