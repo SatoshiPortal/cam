@@ -6,6 +6,7 @@ import (
   "github.com/schulterklopfer/cna/errors"
   "github.com/schulterklopfer/cna/globals"
   "github.com/schulterklopfer/cna/output"
+  "github.com/schulterklopfer/cna/utils"
   "os"
   "strings"
 )
@@ -55,12 +56,9 @@ func LoadSourceFile( path string ) (*SourceList, error) {
 }
 
 func (sourceList *SourceList) SourceIndex( sourceString string ) int {
-  for i:=0; i<len( sourceList.Sources ); i++ {
-    if sourceList.Sources[i].String() == sourceString {
-      return i
-    }
-  }
-  return -1
+  return utils.SliceIndex( len(sourceList.Sources), func(i int) bool {
+    return sourceList.Sources[i].String() == sourceString
+  } )
 }
 
 func (sourceList *SourceList) AddSource( sourceString string ) error {
