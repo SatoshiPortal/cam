@@ -9,14 +9,14 @@ import (
 )
 
 type App struct {
-  Label string `json:"label"`
-  Name string `json:"name"`
-  Path string `json:"path"`
-  URL string `json:"url"`
-  Email string `json:"email"`
-  Latest string `json:"latest"`
+  Label string `json:"label, omitempty"`
+  Name string `json:"name, omitempty"`
+  Path string `json:"path, omitempty"`
+  URL string `json:"url, omitempty"`
+  Email string `json:"email, omitempty"`
+  Latest string `json:"latest, omitempty"`
   Source ISource `json:"source, omitempty"`
-  Candidates []*AppCandidate `json:"candidates"`
+  Candidates []*AppCandidate `json:"candidates, omitempty"`
   hash string `json:"-"`
   ClientID string `json:"clientID, omitempty"`
   ClientSecret string `json:"clientSecret, omitempty"`
