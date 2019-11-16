@@ -12,13 +12,9 @@ type AppList struct {
 }
 
 func (appList *AppList) AppIndex( app *App ) int {
-  for i:=0; i<len( appList.Apps ); i++ {
-    // TODO: fix
-    if appList.Apps[i].GetHash() == app.GetHash() {
-      return i
-    }
-  }
-  return -1
+  return utils.SliceIndex( len(appList.Apps), func(i int) bool {
+    return appList.Apps[i].GetHash() == app.GetHash()
+  } )
 }
 
 func (appList *AppList) BuildLabels() {
