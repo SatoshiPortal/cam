@@ -2,9 +2,9 @@ package storage
 
 import (
   "encoding/json"
-  "github.com/schulterklopfer/cna/globals"
-  "github.com/schulterklopfer/cna/utils"
-  "github.com/schulterklopfer/cna/version"
+  "github.com/schulterklopfer/cam/globals"
+  "github.com/schulterklopfer/cam/utils"
+  "github.com/schulterklopfer/cam/version"
   "path/filepath"
 )
 

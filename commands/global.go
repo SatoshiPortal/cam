@@ -1,7 +1,7 @@
 package commands
 
 import (
-  "github.com/schulterklopfer/cna/actions"
+  "github.com/schulterklopfer/cam/actions"
   "github.com/urfave/cli"
 )
 

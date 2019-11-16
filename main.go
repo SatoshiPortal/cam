@@ -1,9 +1,9 @@
 package main
 
 import (
-  "github.com/schulterklopfer/cna/commands"
-  "github.com/schulterklopfer/cna/globals"
-  "github.com/schulterklopfer/cna/output"
+  "github.com/schulterklopfer/cam/commands"
+  "github.com/schulterklopfer/cam/globals"
+  "github.com/schulterklopfer/cam/output"
   "github.com/urfave/cli"
   "os"
 )

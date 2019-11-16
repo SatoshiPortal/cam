@@ -1,9 +1,9 @@
 package actions
 
 import (
-  "github.com/schulterklopfer/cna/output"
-  "github.com/schulterklopfer/cna/storage"
-  "github.com/schulterklopfer/cna/utils"
+  "github.com/schulterklopfer/cam/output"
+  "github.com/schulterklopfer/cam/storage"
+  "github.com/schulterklopfer/cam/utils"
   "github.com/urfave/cli"
 )
 

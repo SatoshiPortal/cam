@@ -7,8 +7,8 @@ RUN ./build.sh
 
 FROM scratch
 
-COPY --from=builder /src/cna /cna
+COPY --from=builder /src/cam /cam
 
 WORKDIR /data
 
-ENTRYPOINT ["/cna"]
+ENTRYPOINT ["/cam"]

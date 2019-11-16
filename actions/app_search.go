@@ -2,8 +2,8 @@ package actions
 
 import (
   "github.com/olekukonko/tablewriter"
-  "github.com/schulterklopfer/cna/errors"
-  "github.com/schulterklopfer/cna/storage"
+  "github.com/schulterklopfer/cam/errors"
+  "github.com/schulterklopfer/cam/storage"
   "github.com/urfave/cli"
   "os"
   "sort"

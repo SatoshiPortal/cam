@@ -3,9 +3,9 @@ package storage
 import (
   "encoding/json"
   errors2 "errors"
-  "github.com/schulterklopfer/cna/errors"
-  "github.com/schulterklopfer/cna/globals"
-  "github.com/schulterklopfer/cna/utils"
+  "github.com/schulterklopfer/cam/errors"
+  "github.com/schulterklopfer/cam/globals"
+  "github.com/schulterklopfer/cam/utils"
   "io/ioutil"
   "os"
   "path/filepath"

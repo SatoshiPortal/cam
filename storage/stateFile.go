@@ -2,7 +2,7 @@ package storage
 
 import (
   "encoding/json"
-  "github.com/schulterklopfer/cna/globals"
+  "github.com/schulterklopfer/cam/globals"
   "io/ioutil"
   "time"
 )

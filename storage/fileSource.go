@@ -2,7 +2,7 @@ package storage
 
 import (
   "encoding/json"
-  "github.com/schulterklopfer/cna/utils"
+  "github.com/schulterklopfer/cam/utils"
   "strings"
 )
 

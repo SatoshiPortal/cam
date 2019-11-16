@@ -1,3 +1,3 @@
 #!/usr/bin/env sh
 
-docker build . -t cna
+docker build . -t cam

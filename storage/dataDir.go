@@ -1,7 +1,7 @@
 package storage
 
 import (
-  "github.com/schulterklopfer/cna/utils"
+  "github.com/schulterklopfer/cam/utils"
   "os"
 )
 

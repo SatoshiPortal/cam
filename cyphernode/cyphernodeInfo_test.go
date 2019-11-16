@@ -2,7 +2,7 @@ package cyphernode_test
 
 import (
   "encoding/json"
-  "github.com/schulterklopfer/cna/cyphernode"
+  "github.com/schulterklopfer/cam/cyphernode"
   "testing"
 )
 

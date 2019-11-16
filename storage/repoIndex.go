@@ -2,10 +2,10 @@ package storage
 
 import (
   "encoding/json"
-  "github.com/schulterklopfer/cna/errors"
-  "github.com/schulterklopfer/cna/globals"
-  "github.com/schulterklopfer/cna/output"
-  "github.com/schulterklopfer/cna/utils"
+  "github.com/schulterklopfer/cam/errors"
+  "github.com/schulterklopfer/cam/globals"
+  "github.com/schulterklopfer/cam/output"
+  "github.com/schulterklopfer/cam/utils"
   "io/ioutil"
   "os"
   "path/filepath"

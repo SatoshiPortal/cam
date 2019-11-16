@@ -3,7 +3,7 @@ package cyphernode
 import (
   "encoding/json"
   "github.com/pkg/errors"
-  "github.com/schulterklopfer/cna/version"
+  "github.com/schulterklopfer/cam/version"
   "strings"
 )
 

@@ -1,8 +1,8 @@
 package utils_test
 
 import (
-  "github.com/schulterklopfer/cna/globals"
-  "github.com/schulterklopfer/cna/utils"
+  "github.com/schulterklopfer/cam/globals"
+  "github.com/schulterklopfer/cam/utils"
   "os"
   "path/filepath"
   "testing"

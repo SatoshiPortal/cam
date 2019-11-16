@@ -1,4 +1,4 @@
-module github.com/schulterklopfer/cna
+module github.com/schulterklopfer/cam
 
 go 1.13
 
