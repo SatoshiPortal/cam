@@ -75,6 +75,8 @@ func (repoIndex *RepoIndex) Build() error {
 
     _ = d.Close()
 
+    repoIndex.Clear()
+
     for _, file := range files {
       if !file.IsDir() {
         continue

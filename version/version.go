@@ -99,6 +99,13 @@ func (version *Version) IsCompatible( otherVersion *Version ) bool {
       version.Patch == otherVersion.Patch
 }
 
+func (version *Version) IsEqual( otherVersion *Version ) bool {
+  return version.Major == otherVersion.Major &&
+      version.Minor == otherVersion.Minor &&
+      version.Patch == otherVersion.Patch &&
+      version.Misc == otherVersion.Misc
+}
+
 func (version *Version) UnmarshalJSON(data []byte) error {
   var v string
   err := json.Unmarshal( data, &v )

@@ -24,6 +24,12 @@ func InitAppCommands( app *cli.App ) {
         Action: actions.ActionWrapper(actions.App_install),
       },
       {
+        Name:    "delete",
+        Aliases: []string{"d"},
+        Usage:   "deletes an app",
+        Action: actions.ActionWrapper(actions.App_delete),
+      },
+      {
         Name:    "search",
         Aliases: []string{"s"},
         Usage:   "search for an app in all the sources",

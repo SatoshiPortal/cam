@@ -15,9 +15,11 @@ type App struct {
   URL string `json:"url"`
   Email string `json:"email"`
   Latest string `json:"latest"`
-  Source ISource `json:"source"`
+  Source ISource `json:"source, omitempty"`
   Candidates []*AppCandidate `json:"candidates"`
   hash string `json:"-"`
+  ClientID string `json:"clientID, omitempty"`
+  ClientSecret string `json:"clientSecret, omitempty"`
 }
 
 type AppCandidate struct {
@@ -38,6 +40,9 @@ func NewApp() *App {
 }
 
 func (app *App) BuildHash() {
+  if app.Label == "" || app.Source == nil {
+    return
+  }
   bytes := make( []byte, 0 )
   bytes = append( bytes, []byte(app.Label)... )
   bytes = append( bytes, []byte(app.Source.GetHash())... )
@@ -46,6 +51,15 @@ func (app *App) BuildHash() {
 
 func (app *App) GetHash() string {
   return app.hash
+}
+
+func (app *App) GetCandidate( version *version.Version ) *AppCandidate {
+  for i:=0; i< len(app.Candidates); i++ {
+    if app.Candidates[i].Version.IsEqual( version ) {
+      return app.Candidates[i]
+    }
+  }
+  return nil
 }
 
 /** AppCandidate **/

@@ -2,11 +2,12 @@ package storage
 
 import (
   "github.com/schulterklopfer/cna/errors"
+  "github.com/schulterklopfer/cna/utils"
   "strings"
 )
 
 type AppList struct {
-  Apps []*App `json:"data"`
+  Apps []*App `json:"data,omitempty"`
   Labels map[string][]int `json:"-"`
 }
 
@@ -37,9 +38,13 @@ func addIndexToLabel( dict *map[string][]int, label string, index int ) {
   if _, ok := (*dict)[label]; !ok {
     (*dict)[label] = make( []int, 0 )
   }
-  if !contains( (*dict)[label], index) {
+
+  if utils.SliceIndex( len((*dict)[label]), func(i int) bool {
+    return (*dict)[label][i] == index
+  } ) == -1 {
     (*dict)[label] = append((*dict)[label], index)
   }
+
 }
 
 func (appList *AppList) AddApp( app *App ) error {
@@ -87,15 +92,13 @@ func (appList *AppList) BuildAppHashes() {
   }
 }
 
-func (appList *AppList) Save() error {
-  return nil
+func (appList *AppList) Clear() {
+  appList.Apps = appList.Apps[0:0]
+  for k := range appList.Labels {
+    delete(appList.Labels, k)
+  }
 }
 
-func contains(s []int, e int) bool {
-  for _, a := range s {
-    if a == e {
-      return true
-    }
-  }
-  return false
+func (appList *AppList) Save() error {
+  return nil
 }

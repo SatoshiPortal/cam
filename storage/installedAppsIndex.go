@@ -16,14 +16,14 @@ type InstalledAppsIndex struct {
 }
 
 func NewInstalledAppsIndex() (*InstalledAppsIndex, error) {
-  if !utils.InstalledAppsFileExists() {
+  if !utils.InstalledAppsIndexFileExists() {
     return &InstalledAppsIndex{}, errors.INSTALLED_APPS_INDEX_DOES_NOT_EXIST
   }
-  return &InstalledAppsIndex{},nil
+  return &InstalledAppsIndex{ AppList{ Apps: []*App{}, Labels: map[string][]int{} } }, nil
 }
 
 func (installedAppsIndex *InstalledAppsIndex) Load() error {
-  if !utils.InstalledAppsFileExists() {
+  if !utils.InstalledAppsIndexFileExists() {
     return errors.INSTALLED_APPS_INDEX_DOES_NOT_EXIST
   }
 
@@ -66,6 +66,8 @@ func (installedAppsIndex *InstalledAppsIndex) Build() error {
     }
     return errors2.New( "Could not process install dir: "+ err.Error() )
   }
+
+  installedAppsIndex.Clear()
 
   for _, file := range files {
     if !file.IsDir() {

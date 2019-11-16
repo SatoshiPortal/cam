@@ -22,3 +22,14 @@ const CANDIDATE_DESCRIPTION_FILE = "candidate.json"
 
 const INSTALL_DIR_ENV_KEY = "CYPHERAPPS_INSTALL_DIR"
 const INSTALLED_APPS_FILE = "index.json"
+
+
+var DockerVolumeWhitelist = []string{
+  `^\$(\{ *|)GATEKEEPER_CERT_FILE(| *\})$`, // exact match
+  `^\$(\{ *|)CLIGHTNING_RPC_SOCKET(| *\})$`, // exact match
+  `^\$(\{ *|)APP_DATA(| *\})`, // everything beneath APP_DATA
+}
+
+var DockerVolumeElementBlacklist = []string{
+ "..", // something fishy is going on, maybe trying sth like $APP_DATA/../../
+}

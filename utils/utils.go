@@ -1,10 +1,13 @@
 package utils
 
 import (
+  "crypto/rand"
   "encoding/base64"
+  "fmt"
   "github.com/schulterklopfer/cna/errors"
   "github.com/schulterklopfer/cna/globals"
   "golang.org/x/crypto/ripemd160"
+  "io"
   "os"
   "path/filepath"
   "strings"
@@ -80,8 +83,8 @@ func StateFileExists() bool {
   return fileExistsInDataDir( globals.STATE_FILE )
 }
 
-func InstalledAppsFileExists() bool {
-  return fileExists( GetInstallDirPath() )
+func InstalledAppsIndexFileExists() bool {
+  return fileExists( filepath.Join(GetInstallDirPath(), globals.INSTALLED_APPS_FILE ) )
 }
 
 func SourceFileExists() bool {
@@ -155,3 +158,44 @@ func BuildHash( bytes *[]byte ) string {
   return strings.Trim(base64.URLEncoding.EncodeToString(hasher.Sum(nil)), "=" )
 }
 
+func RandomString(length int, encodeToString func([]byte) string ) string {
+  randomBytes := make([]byte, length)
+  if _, err := io.ReadFull(rand.Reader, randomBytes); err != nil {
+    return ""
+  }
+  return strings.TrimRight( encodeToString( randomBytes), "=" )
+}
+
+func SliceIndex(limit int, predicate func(i int) bool) int {
+  for i := 0; i < limit; i++ {
+    if predicate(i) {
+      return i
+    }
+  }
+  return -1
+}
+
+func CopyFile(src string, dst string) (int64, error) {
+  sourceFileStat, err := os.Stat(src)
+  if err != nil {
+    return 0, err
+  }
+
+  if !sourceFileStat.Mode().IsRegular() {
+    return 0, fmt.Errorf("%s is not a regular file", src)
+  }
+
+  source, err := os.Open(src)
+  if err != nil {
+    return 0, err
+  }
+  defer source.Close()
+
+  destination, err := os.Create(dst)
+  if err != nil {
+    return 0, err
+  }
+  defer destination.Close()
+  nBytes, err := io.Copy(destination, source)
+  return nBytes, err
+}

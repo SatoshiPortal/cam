@@ -11,6 +11,7 @@ import (
 )
 
 func App_install(c *cli.Context) error {
+  // TODO: upgrade without removal
   if len(c.Args()) == 0 {
     return errors.APP_INSTALL_NO_APP_ID
   }
