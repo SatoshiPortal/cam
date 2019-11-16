@@ -49,6 +49,7 @@ func (repoIndex *RepoIndex) Build() error {
   if err != nil {
     return err
   }
+  repoIndex.Clear()
 
   for i:=0; i<len(sourceList.Sources); i++ {
 
@@ -74,8 +75,6 @@ func (repoIndex *RepoIndex) Build() error {
     }
 
     _ = d.Close()
-
-    repoIndex.Clear()
 
     for _, file := range files {
       if !file.IsDir() {
