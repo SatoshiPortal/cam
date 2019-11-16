@@ -199,3 +199,16 @@ func CopyFile(src string, dst string) (int64, error) {
   nBytes, err := io.Copy(destination, source)
   return nBytes, err
 }
+
+func AddIndexToLabel( dict *map[string][]int, label string, index int ) {
+  if _, ok := (*dict)[label]; !ok {
+    (*dict)[label] = make( []int, 0 )
+  }
+
+  if SliceIndex( len((*dict)[label]), func(i int) bool {
+    return (*dict)[label][i] == index
+  } ) == -1 {
+    (*dict)[label] = append((*dict)[label], index)
+  }
+
+}

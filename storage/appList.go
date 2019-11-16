@@ -26,21 +26,8 @@ func (appList *AppList) BuildLabels() {
 
 func (appList *AppList) buildLabel( appIndex int ) {
   app := appList.Apps[appIndex]
-  addIndexToLabel( &appList.Labels, app.Label, appIndex )
-  addIndexToLabel( &appList.Labels, app.GetHash(), appIndex )
-}
-
-func addIndexToLabel( dict *map[string][]int, label string, index int ) {
-  if _, ok := (*dict)[label]; !ok {
-    (*dict)[label] = make( []int, 0 )
-  }
-
-  if utils.SliceIndex( len((*dict)[label]), func(i int) bool {
-    return (*dict)[label][i] == index
-  } ) == -1 {
-    (*dict)[label] = append((*dict)[label], index)
-  }
-
+  utils.AddIndexToLabel( &appList.Labels, app.Label, appIndex )
+  utils.AddIndexToLabel( &appList.Labels, app.GetHash(), appIndex )
 }
 
 func (appList *AppList) AddApp( app *App ) error {
