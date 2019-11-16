@@ -20,6 +20,7 @@ type App struct {
   hash string `json:"-"`
   ClientID string `json:"clientID, omitempty"`
   ClientSecret string `json:"clientSecret, omitempty"`
+  Keys []*Key `json:"keys, omitempty"`
 }
 
 type AppCandidate struct {
@@ -107,18 +108,42 @@ func (app *App) UnmarshalJSON(data []byte) error {
       }
       app.Candidates = candidates
       break
+    case "keys":
+      keysJsonBytes, err := json.Marshal( value )
+      if err != nil {
+        return err
+      }
+      var keys []*Key
+      err = json.Unmarshal( keysJsonBytes, &keys)
+      if err != nil {
+        return err
+      }
+      app.Keys = keys
+      break
     case "label":
       app.Label = value.(string)
+      break
     case "name":
       app.Name = value.(string)
+      break
     case "path":
       app.Path = value.(string)
+      break
     case "url":
       app.URL = value.(string)
+      break
     case "email":
       app.Email = value.(string)
+      break
     case "latest":
       app.Latest = value.(string)
+      break
+    case "clientID":
+      app.ClientID = value.(string)
+      break
+    case "clientSecret":
+      app.ClientSecret = value.(string)
+      break
     }
   }
   return nil

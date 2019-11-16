@@ -9,21 +9,28 @@ import (
 
 func ActionWrapper( action func(c *cli.Context) error, boolParams ...bool ) func(c *cli.Context) error {
   needsDataDir := true
-  needsWriteAccess := false
+  needsKeysFile := false
+  needsLock := true
   if len(boolParams) > 0 {
-    needsWriteAccess = boolParams[0]
+    needsDataDir = boolParams[0]
   }
   if len(boolParams) > 1 {
-    needsDataDir = boolParams[1]
+    needsKeysFile = boolParams[1]
+  }
+  if len(boolParams) > 2 {
+    needsLock = boolParams[2]
   }
   return func(c *cli.Context) error {
-    // check if we have a repository
+    if needsKeysFile && !utils.KeysFileExists() {
+      return errors.NO_KEYS_FILE
+    }
+
     if needsDataDir && !utils.ValidDataDirExists() {
       return errors.DATADIR_IS_INVALID
     }
 
     // check for write access
-    if needsWriteAccess {
+    if needsLock {
       if storage.IsLocked() {
         return errors.DATADIR_IS_LOCKED
       }
@@ -33,6 +40,7 @@ func ActionWrapper( action func(c *cli.Context) error, boolParams ...bool ) func
         return err
       }
     }
+
     return action( c )
   }
 }

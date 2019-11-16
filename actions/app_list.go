@@ -10,19 +10,19 @@ import (
 
 func App_list(c *cli.Context) error {
 
-  repoIndex, err := storage.NewInstalledAppsIndex()
+  installedAppsIndex, err := storage.NewInstalledAppsIndex()
 
   if err != nil {
     return err
   }
 
-  err = repoIndex.Load()
+  err = installedAppsIndex.Load()
 
   if err != nil {
     return err
   }
 
-  apps := repoIndex.Apps[:]
+  apps := installedAppsIndex.Apps[:]
   sort.Slice(apps, func(i, j int) bool {
     return apps[i].Label < apps[j].Label
   })

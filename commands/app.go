@@ -33,7 +33,7 @@ func InitAppCommands( app *cli.App ) {
         Name:    "search",
         Aliases: []string{"s"},
         Usage:   "search for an app in all the sources",
-        Action: actions.ActionWrapper(actions.App_search, true),
+        Action: actions.ActionWrapper(actions.App_search),
       },
       {
         Name:    "key",

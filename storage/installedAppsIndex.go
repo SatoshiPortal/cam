@@ -120,6 +120,7 @@ func (installedAppsIndex *InstalledAppsIndex) Build() error {
 func (installedAppsIndex *InstalledAppsIndex) Save() error {
   installedAppsIndexJsonBytes, err := json.MarshalIndent( installedAppsIndex, "", "  " )
   err = ioutil.WriteFile(utils.GetInstalledAppsIndexFilePath(), installedAppsIndexJsonBytes, 0644)
+
   if err != nil {
     return err
   }

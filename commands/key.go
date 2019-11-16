@@ -15,7 +15,7 @@ func InitKeyCommands( app *cli.App ) {
         Name:    "list",
         Aliases: []string{"l"},
         Usage:   "lists keys",
-        Action: actions.ActionWrapper(actions.Key_list),
+        Action: actions.ActionWrapper(actions.Key_list, false, true),
       },
     },
   },

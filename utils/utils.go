@@ -51,6 +51,14 @@ func GetDataDirPath() string {
   return filepath.Join( cwd, globals.DATA_DIR )
 }
 
+func GetKeysFilePath() string {
+  fromEnv := os.Getenv( globals.KEYS_FILE_ENV_KEY )
+  if fromEnv == "" {
+    return filepath.Join( GetDataDirPath(), "keys.properties" )
+  }
+  return fromEnv
+}
+
 func GetInstallDirPath() string {
   installDir := os.Getenv( globals.INSTALL_DIR_ENV_KEY )
   if installDir  == "" {
@@ -97,6 +105,10 @@ func LockFileExists() bool {
 
 func RepoIndexFileExists() bool {
   return fileExistsInDataDir( globals.REPO_INDEX_FILE )
+}
+
+func KeysFileExists() bool {
+  return fileExists( GetKeysFilePath() )
 }
 
 func GetInstalledAppsIndexFilePath() string {

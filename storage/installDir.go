@@ -27,13 +27,11 @@ func InitInstallDir() error {
   installedAppsIndex, err := NewInstalledAppsIndex()
 
   if err != nil {
-    return err
-  }
+    err = installedAppsIndex.Build()
 
-  err = installedAppsIndex.Build()
-
-  if err != nil {
-    return err
+    if err != nil {
+      return err
+    }
   }
 
   return nil
@@ -146,6 +144,65 @@ func UninstallApp( app *App ) error {
   return nil
 }
 
+func AddKeyToApp( app *App, key *Key ) error {
+  if app == nil || key == nil {
+    return nil
+  }
+
+  if utils.SliceIndex( len(app.Keys), func(i int) bool {
+    return app.Keys[i].Label == key.Label
+  } ) != -1 {
+    return nil
+  }
+
+  targetFilePath := filepath.Join( utils.GetInstallDirPath(), app.GetHash(), globals.APP_DESCRIPTION_FILE)
+
+  app.Keys = append( app.Keys, key )
+  appDescriptionJsonBytes, err := json.MarshalIndent( app, "", "  " )
+
+  if err != nil {
+    return err
+  }
+
+  err = ioutil.WriteFile(targetFilePath, appDescriptionJsonBytes, 0644)
+
+  if err != nil {
+    return err
+  }
+
+  return nil
+}
+
+func RemoveKeyFromApp( app *App, key *Key ) error {
+  if app == nil || key == nil {
+    return nil
+  }
+
+  keyIndex := utils.SliceIndex( len(app.Keys), func(i int) bool {
+    return app.Keys[i].Label == key.Label
+  } )
+
+  if keyIndex == -1 {
+    return nil
+  }
+
+  targetFilePath := filepath.Join( utils.GetInstallDirPath(), app.GetHash(), globals.APP_DESCRIPTION_FILE)
+
+  app.Keys = append(app.Keys[:keyIndex], app.Keys[keyIndex+1:]...)
+  appDescriptionJsonBytes, err := json.MarshalIndent( app, "", "  " )
+
+  if err != nil {
+    return err
+  }
+
+  err = ioutil.WriteFile(targetFilePath, appDescriptionJsonBytes, 0644)
+
+  if err != nil {
+    return err
+  }
+
+  return nil
+}
 
 func checkAppSecurity( app *App, candidate *AppCandidate ) error {
   if utils.SliceIndex( len(candidate.Files), func(i int) bool {

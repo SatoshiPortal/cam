@@ -23,6 +23,7 @@ const CANDIDATE_DESCRIPTION_FILE = "candidate.json"
 const INSTALL_DIR_ENV_KEY = "CYPHERAPPS_INSTALL_DIR"
 const INSTALLED_APPS_FILE = "index.json"
 
+const KEYS_FILE_ENV_KEY = "CYPHERNODE_KEYS_FILE"
 
 var DockerVolumeWhitelist = []string{
   `^\$(\{ *|)GATEKEEPER_CERT_FILE(| *\})$`, // exact match
