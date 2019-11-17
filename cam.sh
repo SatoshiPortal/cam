@@ -1,3 +1,3 @@
 #!/usr/bin/env sh
 
-docker run -e CYPHERAPPS_INSTALL_DIR=/install -v $(pwd)/install:/install -v $(pwd):/data --rm cam $*
+docker run -e CYPHERAPPS_INSTALL_DIR=/apps -v $(pwd)/apps:/apps -v $(pwd):/data --rm cam $*
