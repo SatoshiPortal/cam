@@ -53,7 +53,7 @@ func ( gitSource *GitSource ) Update() error {
     // clone
     gitRepo, err = git.PlainClone(targetDir, false, &git.CloneOptions{
       URL: url,
-      ReferenceName: plumbing.ReferenceName("refs/heads/cna"),
+      ReferenceName: plumbing.ReferenceName("refs/heads/cam"),
       Progress: os.Stdout,
     })
     if err != nil {
