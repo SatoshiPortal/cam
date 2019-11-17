@@ -66,7 +66,7 @@ func GetInstallDirPath() string {
     if err != nil {
       panic( err )
     }
-    installDir = filepath.Join( cwd, "install" )
+    installDir = filepath.Join( cwd, globals.INSTALL_DIR )
   }
   return installDir
 }

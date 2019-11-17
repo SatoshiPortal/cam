@@ -22,7 +22,7 @@ const CANDIDATE_DESCRIPTION_FILE = "candidate.json"
 
 const INSTALL_DIR_ENV_KEY = "CYPHERAPPS_INSTALL_DIR"
 const INSTALLED_APPS_FILE = "index.json"
-
+const INSTALL_DIR = "apps"
 const KEYS_FILE_ENV_KEY = "CYPHERNODE_KEYS_FILE"
 
 var DockerVolumeWhitelist = []string{
