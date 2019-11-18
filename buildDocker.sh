@@ -1,3 +1,3 @@
 #!/usr/bin/env sh
 
-docker build . -t cam
+docker build . -t cyphernode/cam:v0.1.0

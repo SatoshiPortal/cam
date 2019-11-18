@@ -59,6 +59,14 @@ func GetKeysFilePath() string {
   return fromEnv
 }
 
+func GetCyphernodeInfoFilePath() string {
+  fromEnv := os.Getenv( globals.CYPHERNODE_INFO_FILE_ENV_KEY )
+  if fromEnv == "" {
+    return filepath.Join( GetDataDirPath(), "cyphernode.json" )
+  }
+  return fromEnv
+}
+
 func GetInstallDirPath() string {
   installDir := os.Getenv( globals.INSTALL_DIR_ENV_KEY )
   if installDir  == "" {
@@ -109,6 +117,10 @@ func RepoIndexFileExists() bool {
 
 func KeysFileExists() bool {
   return fileExists( GetKeysFilePath() )
+}
+
+func CyphernodeInfoFileExists() bool {
+  return fileExists( GetCyphernodeInfoFilePath() )
 }
 
 func GetInstalledAppsIndexFilePath() string {
@@ -224,3 +236,4 @@ func AddIndexToLabel( dict *map[string][]int, label string, index int ) {
   }
 
 }
+

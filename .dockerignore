@@ -4,3 +4,4 @@ install
 Dockerfile
 cam
 .gitignore
+buildDocker.sh

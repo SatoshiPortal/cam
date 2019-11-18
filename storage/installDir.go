@@ -60,6 +60,12 @@ func InstallApp( app *App, version *version.Version ) error {
     return errors.NO_SUCH_VERSION
   }
 
+  isRunnable, _ := AppCandidateIsRunnableOnCyphernode( candidate )
+
+  if !isRunnable {
+    return errors.APP_VERSION_IS_NOT_COMPATIBLE
+  }
+
   err = checkAppSecurity( app, candidate )
 
   if err != nil {
