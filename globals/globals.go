@@ -28,8 +28,8 @@ const CYPHERNODE_INFO_FILE_ENV_KEY = "CYPHERNODE_INFO_FILE"
 
 
 var DockerVolumeWhitelist = []string{
-  `^\$(\{ *|)GATEKEEPER_CERT_FILE(| *\})$`, // exact match
-  `^\$(\{ *|)CLIGHTNING_RPC_SOCKET(| *\})$`, // exact match
+  `^\$(\{ *|)GATEKEEPER_CERTS_PATH(| *\})`, // everything beneath GATEKEEPER_CERTS_PATH
+  `^\$(\{ *|)UNSAFE__CLIGHTNING_PATH(| *\})`, // everything beneath UNSAFE__CLIGHTNING_PATH
   `^\$(\{ *|)APP_DATA(| *\})`, // everything beneath APP_DATA
 }
 

@@ -6,6 +6,7 @@ import (
   "github.com/schulterklopfer/cam/dockerCompose"
   "github.com/schulterklopfer/cam/errors"
   "github.com/schulterklopfer/cam/globals"
+  "github.com/schulterklopfer/cam/output"
   "github.com/schulterklopfer/cam/utils"
   "github.com/schulterklopfer/cam/version"
   "gopkg.in/yaml.v2"
@@ -238,12 +239,17 @@ func checkDockerCompose( path string ) error {
     for _, volume := range service.Volumes {
       arr := strings.Split( volume, ":" )
       hostDirectory := strings.Trim( arr[0], " \n" )
+      output.Noticef( "Checking: %s\n", hostDirectory )
       if utils.SliceIndex( len(globals.DockerVolumeWhitelist), func(i int) bool {
         pattern := globals.DockerVolumeWhitelist[i]
         match, err := regexp.MatchString(pattern, hostDirectory)
         return match && err == nil
       } ) == -1 {
         return errors.VOLUME_NOT_IN_WHITELIST
+      }
+
+      if strings.HasPrefix(hostDirectory, "$UNSAFE__" ) {
+        output.Warningf( "Volume %s is marked as unsafe. Please make sure, this app is not malicious.\n", hostDirectory)
       }
 
       if utils.SliceIndex( len(globals.DockerVolumeElementBlacklist), func(i int) bool {
