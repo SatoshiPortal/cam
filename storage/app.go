@@ -27,6 +27,27 @@ type AppCandidate struct {
   Version *version.Version `json:"version"`
   Dependencies []*AppDependency `json:"dependencies"`
   Files []string `json:"files"`
+  Authorization Authorization `json:"authorization"`
+}
+
+type Role struct {
+  Name string `json:"name"`
+  Description string `json:"description"`
+  AutoAssign bool `json:"autoAssign"`
+}
+
+type ACP struct {
+  Id string `json:"id"`
+  Description string `json:"description"`
+  Subjects []string `json:"subjects"`
+  Effect string `json:"effect"`
+  Resources []string `json:"resources"`
+  Actions []string `json:"actions"`
+}
+
+type Authorization struct {
+  Roles []*Role `json:"roles"`
+  ACP []*ACP `json:"acp"`
 }
 
 type AppDependency struct {

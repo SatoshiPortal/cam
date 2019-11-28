@@ -6,15 +6,11 @@ import (
   "github.com/schulterklopfer/cam/dockerCompose"
   "github.com/schulterklopfer/cam/errors"
   "github.com/schulterklopfer/cam/globals"
-  "github.com/schulterklopfer/cam/output"
   "github.com/schulterklopfer/cam/utils"
   "github.com/schulterklopfer/cam/version"
-  "gopkg.in/yaml.v2"
   "io/ioutil"
   "os"
   "path/filepath"
-  "regexp"
-  "strings"
 )
 
 func InitInstallDir() error {
@@ -92,10 +88,24 @@ func InstallApp( app *App, version *version.Version ) error {
   for _, file := range files {
     sourceFilePath := filepath.Join( app.Path, globals.APP_VERSIONS_DIR, candidate.Version.Raw, file )
     targetFilePath := filepath.Join( installDirPath, clientID, file )
-    _, err = utils.CopyFile(sourceFilePath, targetFilePath)
-    if err != nil {
-      return err
+
+    if file == "docker-compose.yaml" {
+      dockerComposeTemplate, err := dockerCompose.LoadDockerComposeTemplate( sourceFilePath )
+      if err != nil {
+        return err
+      }
+      dockerComposeTemplate.Replacements = &map[string]string{
+        "APP_UPSTREAM_HOST": app.ClientID,
+        "APP_ID": app.ClientID,
+      }
+      dockerComposeTemplate.SaveAsDockerCompose( targetFilePath )
+    } else {
+      _, err = utils.CopyFile(sourceFilePath, targetFilePath)
+      if err != nil {
+        return err
+      }
     }
+
   }
   targetFilePath := filepath.Join(installDirPath, clientID, globals.APP_DESCRIPTION_FILE)
   appDescriptionJsonBytes, err := json.MarshalIndent( app, "", "  " )
@@ -215,51 +225,25 @@ func checkAppSecurity( app *App, candidate *AppCandidate ) error {
   if utils.SliceIndex( len(candidate.Files), func(i int) bool {
     return candidate.Files[i] == "docker-compose.yaml"
   } ) > -1 {
-    err := checkDockerCompose( filepath.Join(app.Path, globals.APP_VERSIONS_DIR, candidate.Version.Raw, "docker-compose.yaml" ) )
+
+    dockerComposeTemplate, err := dockerCompose.LoadDockerComposeTemplate(
+      filepath.Join(app.Path, globals.APP_VERSIONS_DIR, candidate.Version.Raw, "docker-compose.yaml" ) )
+
+    if err != nil {
+      return err
+    }
+
+    err = dockerComposeTemplate.CheckVolumes()
+
+    if err != nil {
+      return err
+    }
+
+    err = dockerComposeTemplate.CheckServiceNames()
+
     if err != nil {
       return err
     }
   }
   return nil
 }
-
-func checkDockerCompose( path string ) error {
-  dockerComposeBytes, err := ioutil.ReadFile(path)
-  if err != nil {
-    return err
-  }
-  var dockerCompose dockerCompose.Config
-
-  err = yaml.Unmarshal(dockerComposeBytes, &dockerCompose)
-  if err != nil {
-    return err
-  }
-
-  for _, service := range dockerCompose.Services {
-    for _, volume := range service.Volumes {
-      arr := strings.Split( volume, ":" )
-      hostDirectory := strings.Trim( arr[0], " \n" )
-      output.Noticef( "Checking: %s\n", hostDirectory )
-      if utils.SliceIndex( len(globals.DockerVolumeWhitelist), func(i int) bool {
-        pattern := globals.DockerVolumeWhitelist[i]
-        match, err := regexp.MatchString(pattern, hostDirectory)
-        return match && err == nil
-      } ) == -1 {
-        return errors.VOLUME_NOT_IN_WHITELIST
-      }
-
-      if strings.HasPrefix(hostDirectory, "$UNSAFE__" ) {
-        output.Warningf( "Volume %s is marked as unsafe. Please make sure, this app is not malicious.\n", hostDirectory)
-      }
-
-      if utils.SliceIndex( len(globals.DockerVolumeElementBlacklist), func(i int) bool {
-        return strings.Contains( hostDirectory, globals.DockerVolumeElementBlacklist[i] )
-      } ) != -1 {
-        return errors.VOLUME_HAS_ILLEGAL_ELEMENTS
-      }
-    }
-  }
-
-  return nil
-}
-

@@ -25,6 +25,7 @@ const INSTALLED_APPS_FILE = "index.json"
 const INSTALL_DIR = "apps"
 const KEYS_FILE_ENV_KEY = "CYPHERNODE_KEYS_FILE"
 const CYPHERNODE_INFO_FILE_ENV_KEY = "CYPHERNODE_INFO_FILE"
+const DOCKER_COMPOSE_TEMPLATE_REGEXP_TEMPLATE = `<%%= *%s *%%>`
 
 
 var DockerVolumeWhitelist = []string{
