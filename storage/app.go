@@ -2,9 +2,9 @@ package storage
 
 import (
   "encoding/json"
-  "github.com/schulterklopfer/cam/globals"
-  "github.com/schulterklopfer/cam/utils"
-  "github.com/schulterklopfer/cam/version"
+  "github.com/SatoshiPortal/cam/globals"
+  "github.com/SatoshiPortal/cam/utils"
+  "github.com/SatoshiPortal/cam/version"
   "path/filepath"
 )
 

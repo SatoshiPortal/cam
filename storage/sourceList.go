@@ -3,10 +3,10 @@ package storage
 import (
   "bufio"
   "fmt"
-  "github.com/schulterklopfer/cam/errors"
-  "github.com/schulterklopfer/cam/globals"
-  "github.com/schulterklopfer/cam/output"
-  "github.com/schulterklopfer/cam/utils"
+  "github.com/SatoshiPortal/cam/errors"
+  "github.com/SatoshiPortal/cam/globals"
+  "github.com/SatoshiPortal/cam/output"
+  "github.com/SatoshiPortal/cam/utils"
   "os"
   "strings"
 )

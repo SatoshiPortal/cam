@@ -1,8 +1,8 @@
 package storage
 
 import (
-  "github.com/schulterklopfer/cam/errors"
-  "github.com/schulterklopfer/cam/utils"
+  "github.com/SatoshiPortal/cam/errors"
+  "github.com/SatoshiPortal/cam/utils"
   "strings"
 )
 

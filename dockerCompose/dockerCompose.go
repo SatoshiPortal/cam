@@ -2,10 +2,10 @@ package dockerCompose
 
 import (
   "fmt"
-  "github.com/schulterklopfer/cam/errors"
-  "github.com/schulterklopfer/cam/globals"
-  "github.com/schulterklopfer/cam/output"
-  "github.com/schulterklopfer/cam/utils"
+  "github.com/SatoshiPortal/cam/errors"
+  "github.com/SatoshiPortal/cam/globals"
+  "github.com/SatoshiPortal/cam/output"
+  "github.com/SatoshiPortal/cam/utils"
   "gopkg.in/yaml.v2"
   "io/ioutil"
   "regexp"

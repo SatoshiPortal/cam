@@ -1,9 +1,9 @@
 package main
 
 import (
-  "github.com/schulterklopfer/cam/commands"
-  "github.com/schulterklopfer/cam/globals"
-  "github.com/schulterklopfer/cam/output"
+  "github.com/SatoshiPortal/cam/commands"
+  "github.com/SatoshiPortal/cam/globals"
+  "github.com/SatoshiPortal/cam/output"
   "github.com/urfave/cli"
   "os"
 )

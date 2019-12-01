@@ -3,9 +3,9 @@ package storage
 import (
   "encoding/json"
   errors2 "errors"
-  "github.com/schulterklopfer/cam/errors"
-  "github.com/schulterklopfer/cam/globals"
-  "github.com/schulterklopfer/cam/utils"
+  "github.com/SatoshiPortal/cam/errors"
+  "github.com/SatoshiPortal/cam/globals"
+  "github.com/SatoshiPortal/cam/utils"
   "io/ioutil"
   "os"
   "path/filepath"

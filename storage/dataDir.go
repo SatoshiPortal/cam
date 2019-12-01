@@ -1,7 +1,7 @@
 package storage
 
 import (
-  "github.com/schulterklopfer/cam/utils"
+  "github.com/SatoshiPortal/cam/utils"
   "os"
 )
 

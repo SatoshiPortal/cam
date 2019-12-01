@@ -1,4 +1,4 @@
-module github.com/schulterklopfer/cam
+module github.com/SatoshiPortal/cam
 
 go 1.13
 

@@ -2,8 +2,8 @@ package storage
 
 import (
   "encoding/json"
-  "github.com/schulterklopfer/cam/output"
-  "github.com/schulterklopfer/cam/utils"
+  "github.com/SatoshiPortal/cam/output"
+  "github.com/SatoshiPortal/cam/utils"
   "gopkg.in/src-d/go-git.v4"
   "gopkg.in/src-d/go-git.v4/plumbing"
   "os"

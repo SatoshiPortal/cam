@@ -2,7 +2,7 @@ package storage
 
 import (
   "encoding/json"
-  "github.com/schulterklopfer/cam/utils"
+  "github.com/SatoshiPortal/cam/utils"
   "strings"
 )
 

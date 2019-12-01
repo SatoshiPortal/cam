@@ -1,9 +1,9 @@
 package actions
 
 import (
-  "github.com/schulterklopfer/cam/output"
-  "github.com/schulterklopfer/cam/storage"
-  "github.com/schulterklopfer/cam/utils"
+  "github.com/SatoshiPortal/cam/output"
+  "github.com/SatoshiPortal/cam/storage"
+  "github.com/SatoshiPortal/cam/utils"
   "github.com/urfave/cli"
 )
 

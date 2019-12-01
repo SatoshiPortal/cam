@@ -1,8 +1,8 @@
 package storage_test
 
 import (
-  "github.com/schulterklopfer/cam/globals"
-  "github.com/schulterklopfer/cam/storage"
+  "github.com/SatoshiPortal/cam/globals"
+  "github.com/SatoshiPortal/cam/storage"
   "io/ioutil"
   "os"
   "path/filepath"

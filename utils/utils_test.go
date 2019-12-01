@@ -1,8 +1,8 @@
 package utils_test
 
 import (
-  "github.com/schulterklopfer/cam/globals"
-  "github.com/schulterklopfer/cam/utils"
+  "github.com/SatoshiPortal/cam/globals"
+  "github.com/SatoshiPortal/cam/utils"
   "os"
   "path/filepath"
   "testing"
