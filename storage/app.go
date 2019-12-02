@@ -28,6 +28,8 @@ type AppCandidate struct {
   Dependencies []*AppDependency `json:"dependencies"`
   Files []string `json:"files"`
   Authorization Authorization `json:"authorization"`
+  IsExposed bool `json:"isExposed"`
+  Port int `json:"port"`
 }
 
 type Role struct {
