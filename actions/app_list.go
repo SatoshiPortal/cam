@@ -28,7 +28,7 @@ func App_list(c *cli.Context) error {
   })
 
   table := tablewriter.NewWriter(os.Stdout)
-  table.SetHeader([]string{"Source", "Label", "Name", "Hash"})
+  table.SetHeader([]string{"Source", "Label", "Name", "Hash", "Mount point"})
   table.SetAutoFormatHeaders(true)
   table.SetHeaderAlignment(tablewriter.ALIGN_LEFT)
   table.SetAlignment(tablewriter.ALIGN_LEFT)
@@ -41,7 +41,7 @@ func App_list(c *cli.Context) error {
   table.SetNoWhiteSpace(true)
 
   for i:=0; i<len(apps); i++ {
-    table.Append( []string{ apps[i].Source.String(),apps[i].Label,apps[i].Name,apps[i].GetHash()} )
+    table.Append( []string{ apps[i].Source.String(),apps[i].Label,apps[i].Name,apps[i].GetHash(),"/"+apps[i].MountPoint} )
   }
 
   table.Render() // Send output

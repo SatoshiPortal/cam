@@ -1,7 +1,6 @@
 package storage
 
 import (
-  "encoding/base32"
   "encoding/json"
   "github.com/SatoshiPortal/cam/dockerCompose"
   "github.com/SatoshiPortal/cam/errors"
@@ -44,6 +43,12 @@ func InstallApp( app *App, version *version.Version ) error {
       return err
     }
 
+    // Check if mount point exists
+    if installedAppsIndex.MountPointHasCollision( app.MountPoint ) {
+      return errors.APP_MOUNTPOINT_BLOCKED
+    }
+
+    // Check if app is already installed
     apps := installedAppsIndex.Search( app.GetHash(), true )
 
     if len(apps) != 0 {
@@ -71,23 +76,20 @@ func InstallApp( app *App, version *version.Version ) error {
 
   installDirPath := utils.GetInstallDirPath()
 
-  clientID := app.GetHash()
+  appHash := app.GetHash()
 
-  err = os.MkdirAll( filepath.Join( installDirPath, clientID ) , 0755 )
+  err = os.MkdirAll( filepath.Join( installDirPath, appHash) , 0755 )
 
   if err != nil {
     return err
   }
-
-  app.ClientSecret = utils.RandomString(32, base32.StdEncoding.EncodeToString )
-  app.ClientID = clientID
 
   files :=  candidate.Files[:]
   files = append(files,globals.CANDIDATE_DESCRIPTION_FILE)
 
   for _, file := range files {
     sourceFilePath := filepath.Join( app.Path, globals.APP_VERSIONS_DIR, candidate.Version.Raw, file )
-    targetFilePath := filepath.Join( installDirPath, clientID, file )
+    targetFilePath := filepath.Join( installDirPath, appHash, file )
 
     if file == "docker-compose.yaml" {
       dockerComposeTemplate, err := dockerCompose.LoadDockerComposeTemplate( sourceFilePath )
@@ -107,7 +109,7 @@ func InstallApp( app *App, version *version.Version ) error {
     }
 
   }
-  targetFilePath := filepath.Join(installDirPath, clientID, globals.APP_DESCRIPTION_FILE)
+  targetFilePath := filepath.Join(installDirPath, appHash, globals.APP_DESCRIPTION_FILE)
   appDescriptionJsonBytes, err := json.MarshalIndent( app, "", "  " )
 
   err = ioutil.WriteFile(targetFilePath, appDescriptionJsonBytes, 0644)

@@ -126,3 +126,13 @@ func (installedAppsIndex *InstalledAppsIndex) Save() error {
   }
   return nil
 }
+
+func (installedAppsIndex *InstalledAppsIndex) MountPointHasCollision( mountPoint string ) bool {
+  // check if mountPoint is the same or below any other installed app's mount point
+  for _,app := range installedAppsIndex.Apps {
+    if app.MountPoint == mountPoint {
+      return true
+    }
+  }
+  return false
+}

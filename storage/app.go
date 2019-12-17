@@ -8,19 +8,22 @@ import (
   "path/filepath"
 )
 
+/* DO NOT FORGET TO ADD PROPERTIES TO THE CUSTOM UNMARSHALLER (UnmarshalJSON)!!! */
 type App struct {
-  Label string `json:"label, omitempty"`
-  Name string `json:"name, omitempty"`
-  Path string `json:"path, omitempty"`
-  URL string `json:"url, omitempty"`
-  Email string `json:"email, omitempty"`
-  Latest string `json:"latest, omitempty"`
-  Source ISource `json:"source, omitempty"`
-  Candidates []*AppCandidate `json:"candidates, omitempty"`
+  Label string `json:"label,omitempty"`
+  Name string `json:"name,omitempty"`
+  Path string `json:"path,omitempty"`
+  URL string `json:"url,omitempty"`
+  Email string `json:"email,omitempty"`
+  Latest string `json:"latest,omitempty"`
+  DefaultMountPoint string `json:"defaultMountPoint,omitempty"`
+  MountPoint string `json:"mountPoint,omitempty"`
+  Source ISource `json:"source,omitempty"`
+  Candidates []*AppCandidate `json:"candidates,omitempty"`
   hash string `json:"-"`
-  ClientID string `json:"clientID, omitempty"`
-  ClientSecret string `json:"clientSecret, omitempty"`
-  Keys []*Key `json:"keys, omitempty"`
+  ClientID string `json:"clientID,omitempty"`
+  ClientSecret string `json:"clientSecret,omitempty"`
+  Keys []*Key `json:"keys,omitempty"`
 }
 
 type AppCandidate struct {
@@ -166,6 +169,10 @@ func (app *App) UnmarshalJSON(data []byte) error {
       break
     case "clientSecret":
       app.ClientSecret = value.(string)
+    case "mountPoint":
+      app.MountPoint = value.(string)
+    case "defaultMountPoint":
+      app.DefaultMountPoint = value.(string)
       break
     }
   }
