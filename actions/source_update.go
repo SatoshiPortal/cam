@@ -69,7 +69,7 @@ func Source_update(c *cli.Context) error {
     }
   }
 
-  repoIndex, err := storage.NewRepoIndex()
+  repoIndex := storage.NewRepoIndex()
 
   if err != nil {
     return err

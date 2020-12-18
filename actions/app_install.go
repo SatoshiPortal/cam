@@ -43,13 +43,9 @@ func App_install(c *cli.Context) error {
     return errors.APP_INSTALL_NO_APP_ID
   }
 
-  repoIndex, err := storage.NewRepoIndex()
+  repoIndex := storage.NewRepoIndex()
 
-  if err != nil {
-    return err
-  }
-
-  err = repoIndex.Load()
+  err := repoIndex.Load()
 
   if err != nil {
     return err

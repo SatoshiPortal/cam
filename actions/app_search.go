@@ -40,13 +40,9 @@ func App_search(c *cli.Context) error {
     return errors.APP_SEARCH_NO_SEARCH_TERM
   }
 
-  repoIndex, err := storage.NewRepoIndex()
+  repoIndex := storage.NewRepoIndex()
 
-  if err != nil {
-    return err
-  }
-
-  err = repoIndex.Load()
+  err := repoIndex.Load()
 
   if err != nil {
     return err

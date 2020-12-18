@@ -39,11 +39,8 @@ type RepoIndex struct {
   AppList
 }
 
-func NewRepoIndex() (*RepoIndex, error) {
-  if !utils.RepoIndexFileExists() {
-    return &RepoIndex{}, errors.REPO_INDEX_DOES_NOT_EXIST
-  }
-  return &RepoIndex{},nil
+func NewRepoIndex() *RepoIndex {
+  return &RepoIndex{}
 }
 
 
