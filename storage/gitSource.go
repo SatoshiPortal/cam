@@ -29,7 +29,6 @@ import (
   "github.com/SatoshiPortal/cam/output"
   "github.com/SatoshiPortal/cam/utils"
   "gopkg.in/src-d/go-git.v4"
-  "gopkg.in/src-d/go-git.v4/plumbing"
   "os"
   "strings"
 )
@@ -78,7 +77,7 @@ func ( gitSource *GitSource ) Update() error {
     gitRepo, err = git.PlainClone(targetDir, false, &git.CloneOptions{
       URL: url,
       RemoteName: "origin",
-      ReferenceName: plumbing.ReferenceName("refs/heads/cam"),
+      // ReferenceName: plumbing.ReferenceName("refs/heads/cam"),
       Progress: os.Stdout,
     })
     if err != nil {

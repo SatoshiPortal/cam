@@ -48,6 +48,12 @@ func InitSourceCommands( app *cli.App ) {
         Action: actions.ActionWrapper(actions.Source_add),
       },
       {
+        Name:    "update",
+        Aliases: []string{"u"},
+        Usage:   "update source(s)",
+        Action: actions.ActionWrapper(actions.Source_update),
+      },
+      {
         Name:    "del",
         Aliases: []string{"d"},
         Usage:   "delete source",

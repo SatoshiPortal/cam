@@ -30,6 +30,8 @@ import (
   "github.com/SatoshiPortal/cam/utils"
   "github.com/SatoshiPortal/cam/version"
   "path/filepath"
+  "regexp"
+  "strings"
 )
 
 /* DO NOT FORGET TO ADD PROPERTIES TO THE CUSTOM UNMARSHALLER (UnmarshalJSON)!!! */
@@ -40,13 +42,14 @@ type App struct {
   URL string `json:"url,omitempty"`
   Email string `json:"email,omitempty"`
   Latest string `json:"latest,omitempty"`
+  TrustZone string `json:"trustZone,omitempty"`
   DefaultMountPoint string `json:"defaultMountPoint,omitempty"`
   MountPoint string `json:"mountPoint,omitempty"`
   Source ISource `json:"source,omitempty"`
   Candidates []*AppCandidate `json:"candidates,omitempty"`
   hash string `json:"-"`
   ClientID string `json:"clientID,omitempty"`
-  ClientSecret string `json:"clientSecret,omitempty"`
+  Secret string `json:"secret,omitempty"`
   Keys []*Key `json:"keys,omitempty"`
 }
 
@@ -54,7 +57,8 @@ type AppCandidate struct {
   Version *version.Version `json:"version"`
   Dependencies []*AppDependency `json:"dependencies"`
   Files []string `json:"files"`
-  Authorization Authorization `json:"authorization"`
+  AvailableRoles []*Role `json:"availableRoles"`
+  AccessPolicies []*AccessPolicy `json:"accessPolicies"`
   IsExposed bool `json:"isExposed"`
   Port int `json:"port"`
 }
@@ -65,18 +69,85 @@ type Role struct {
   AutoAssign bool `json:"autoAssign"`
 }
 
-type ACP struct {
-  Id string `json:"id"`
-  Description string `json:"description"`
-  Subjects []string `json:"subjects"`
-  Effect string `json:"effect"`
-  Resources []string `json:"resources"`
-  Actions []string `json:"actions"`
+type AccessPolicy struct {
+  Roles []string `json:"roles"`
+  Patterns []string `json:"resources"`
+  Effect string `json:"effect"` // allow, deny
+  Actions []string `json:"actions"` // get, post, delete, put, patch, options
 }
 
-type Authorization struct {
-  Roles []*Role `json:"roles"`
-  ACP []*ACP `json:"acp"`
+func ( ap *AccessPolicy ) Check( method string, path string, roleNames []string ) bool {
+
+  if method == "" {
+    method = "*"
+  }
+
+  if ap.Effect == "" {
+    ap.Effect = "deny"
+  }
+
+  trimmedLowercaseMethod := strings.ToLower(strings.Trim(method, " "))
+  methodMatches := false
+  for _, action := range ap.Actions {
+    trimmedLowercaseAction := strings.ToLower(strings.Trim(action, " "))
+    methodMatches = trimmedLowercaseAction == "*" || trimmedLowercaseMethod == trimmedLowercaseAction
+    if methodMatches {
+      break
+    }
+  }
+
+  if !methodMatches  {
+    if ap.Effect == "allow" {
+      return false
+    }
+    return true
+  }
+
+  pathMatches := false
+  for _, pattern := range ap.Patterns {
+    var err error
+    pathMatches, err = regexp.Match( pattern, []byte(path) )
+    if err != nil {
+      continue
+    }
+
+    if pathMatches {
+      break
+    }
+  }
+
+  if !pathMatches  {
+    if ap.Effect == "allow" {
+      return false
+    }
+  }
+
+  roleMatches := false
+  for _, requiredRoleName := range ap.Roles {
+    if requiredRoleName == "*" {
+      roleMatches = true
+    } else {
+      if roleNames == nil {
+        continue
+      }
+      for _, roleName := range roleNames {
+        if requiredRoleName==roleName {
+          roleMatches = true
+          break
+        }
+      }
+    }
+
+    if roleMatches {
+      break
+    }
+  }
+
+  if ap.Effect != "allow" {
+    roleMatches = !roleMatches
+  }
+
+  return roleMatches
 }
 
 type AppDependency struct {
@@ -191,12 +262,17 @@ func (app *App) UnmarshalJSON(data []byte) error {
     case "clientID":
       app.ClientID = value.(string)
       break
-    case "clientSecret":
-      app.ClientSecret = value.(string)
+    case "secret":
+      app.Secret = value.(string)
+      break
     case "mountPoint":
       app.MountPoint = value.(string)
+      break
     case "defaultMountPoint":
       app.DefaultMountPoint = value.(string)
+      break
+    case "trustZone":
+      app.TrustZone = value.(string)
       break
     }
   }

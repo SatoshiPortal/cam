@@ -31,6 +31,8 @@ import (
   "github.com/urfave/cli"
 )
 
+// TODO: add command to copy keys.properties to .cam
+
 func ActionWrapper( action func(c *cli.Context) error, boolParams ...bool ) func(c *cli.Context) error {
   needsDataDir := true
   needsKeysFile := false

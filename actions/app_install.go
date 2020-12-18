@@ -27,6 +27,7 @@ package actions
 import (
   "encoding/base32"
   "github.com/SatoshiPortal/cam/errors"
+  "github.com/SatoshiPortal/cam/globals"
   "github.com/SatoshiPortal/cam/output"
   "github.com/SatoshiPortal/cam/storage"
   "github.com/SatoshiPortal/cam/utils"
@@ -38,7 +39,6 @@ import (
 )
 
 func App_install(c *cli.Context) error {
-  // TODO: upgrade without removal
   if len(c.Args()) == 0 {
     return errors.APP_INSTALL_NO_APP_ID
   }
@@ -55,7 +55,26 @@ func App_install(c *cli.Context) error {
     return err
   }
 
-  appToInstall := strings.Trim( c.Args().Get(0), " \n")
+  isTrusted_appToInstall_Version := strings.Trim( c.Args().Get(0), " \n")
+
+  trustZone := globals.DefaultTrustZone
+
+  appToInstall_Version := strings.Split( isTrusted_appToInstall_Version, ":" )
+
+  var appToInstall string
+
+  if len(appToInstall_Version) > 1 {
+    trustZone = strings.ToLower(appToInstall_Version[0])
+    if utils.SliceIndex( len(globals.ValidTrustZones), func(i int) bool {
+      return globals.ValidTrustZones[i] == trustZone
+    } ) == -1 {
+      output.Noticef( "Unknown trust zone \"%s\". Valid values are: %s\n", trustZone, strings.Join( globals.ValidTrustZones, ", ") )
+      return nil
+    }
+    appToInstall = appToInstall_Version[1]
+  } else {
+    appToInstall = appToInstall_Version[0]
+  }
 
   appIDVersion := strings.Split( appToInstall, "@" )
   v := version.NewVersion( "latest" )
@@ -97,8 +116,9 @@ func App_install(c *cli.Context) error {
     }
 
     apps[0].MountPoint = mountPoint
-    apps[0].ClientSecret = utils.RandomString(32, base32.StdEncoding.EncodeToString )
+    apps[0].Secret = utils.RandomString(32, base32.StdEncoding.EncodeToString )
     apps[0].ClientID = apps[0].GetHash()
+    apps[0].TrustZone = trustZone
     err := storage.InstallApp( apps[0], v )
 
     if err != nil {

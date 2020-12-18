@@ -25,19 +25,48 @@
 package actions
 
 import (
-  "github.com/olekukonko/tablewriter"
-  "github.com/SatoshiPortal/cam/errors"
+  "github.com/SatoshiPortal/cam/output"
   "github.com/SatoshiPortal/cam/storage"
+  "github.com/SatoshiPortal/cam/utils"
   "github.com/urfave/cli"
-  "os"
-  "sort"
-  "strings"
 )
 
-func App_search(c *cli.Context) error {
+func Source_update(c *cli.Context) error {
+  sourceList, err := storage.LoadSourceFile(  utils.GetSourceFilePath() )
+
+  if err != nil {
+    return err
+  }
+
+  var sources []storage.ISource
 
   if len(c.Args()) == 0 {
-    return errors.APP_SEARCH_NO_SEARCH_TERM
+    // update all sources
+    sources = sourceList.Sources
+  } else {
+    for _, arg := range c.Args() {
+      // arg might be a hash
+      source := sourceList.GetSourceByHash( arg )
+      if source == nil {
+        // not a hash
+        // arg might be source string?
+        source = sourceList.GetSourceByString( arg )
+        if source == nil {
+          output.Noticef("%s is not a valid source... skipping\n", arg)
+          continue
+        }
+      }
+      sources = append( sources, source )
+    }
+  }
+
+  for _,source := range sources {
+    err := source.Update()
+    if err != nil {
+      output.Noticef("Error updating source %s: %s\n", source.String(), err.Error() )
+    } else {
+      output.Noticef("Updated source %s\n", source.String() )
+    }
   }
 
   repoIndex, err := storage.NewRepoIndex()
@@ -46,38 +75,11 @@ func App_search(c *cli.Context) error {
     return err
   }
 
-  err = repoIndex.Load()
+  err = repoIndex.Build()
 
   if err != nil {
     return err
   }
 
-  searchString := strings.Trim( c.Args().Get(0), " \n")
-
-  apps := repoIndex.Search( searchString, false )
-  sort.Slice(apps, func(i, j int) bool {
-    return apps[i].Label < apps[j].Label
-  })
-
-  table := tablewriter.NewWriter(os.Stdout)
-  table.SetHeader([]string{"Source", "Label", "Version", "Name", "Hash"})
-  table.SetAutoFormatHeaders(true)
-  table.SetHeaderAlignment(tablewriter.ALIGN_LEFT)
-  table.SetAlignment(tablewriter.ALIGN_LEFT)
-  table.SetCenterSeparator("")
-  table.SetColumnSeparator("")
-  table.SetRowSeparator("")
-  table.SetHeaderLine(false)
-  table.SetBorder(false)
-  table.SetTablePadding("  ")
-  table.SetNoWhiteSpace(true)
-
-  for i:=0; i<len(apps); i++ {
-    table.Append( []string{ apps[i].Source.String(),apps[i].Label,apps[i].Latest,apps[i].Name,apps[i].GetHash()} )
-  }
-
-  table.Render() // Send output
-
   return nil
-
 }

@@ -25,10 +25,11 @@
 package actions
 
 import (
-  "github.com/SatoshiPortal/cam/output"
   "github.com/SatoshiPortal/cam/storage"
   "github.com/SatoshiPortal/cam/utils"
+  "github.com/olekukonko/tablewriter"
   "github.com/urfave/cli"
+  "os"
 )
 
 func Source_list(c *cli.Context) error {
@@ -38,9 +39,22 @@ func Source_list(c *cli.Context) error {
     return err
   }
 
-  for i:=0; i<len(sourceList.Sources); i++ {
-    output.Noticef( "%s (%24s)\n", sourceList.Sources[i].String(), sourceList.Sources[i].GetHash() )
-  }
+  table := tablewriter.NewWriter(os.Stdout)
+  table.SetHeader([]string{"Source", "Hash"})
+  table.SetAutoFormatHeaders(true)
+  table.SetHeaderAlignment(tablewriter.ALIGN_LEFT)
+  table.SetAlignment(tablewriter.ALIGN_LEFT)
+  table.SetCenterSeparator("")
+  table.SetColumnSeparator("")
+  table.SetRowSeparator("")
+  table.SetHeaderLine(false)
+  table.SetBorder(false)
+  table.SetTablePadding("  ")
+  table.SetNoWhiteSpace(true)
 
+  for i:=0; i<len(sourceList.Sources); i++ {
+    table.Append( []string{ sourceList.Sources[i].String(), sourceList.Sources[i].GetHash() } )
+  }
+  table.Render() // Send output
   return nil
 }

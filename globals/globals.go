@@ -26,38 +26,48 @@ package globals
 
 import "path/filepath"
 
-const CYPHERAPPS_REPO = "git://github.com/SatoshiPortal/cypherapps.git"
+const (
+  CYPHERAPPS_REPO                         = "git://github.com/SatoshiPortal/cypherapps.git"
+  VERSION                                 = "0.1.0"
+  AUTHOR                                  = "SKP <skp@skp.rocks>"
+  NAME                                    = "cam - Cyphernode apps management tool"
+  DESCRIPTION                             = "A tool to manager your cypherapps"
+  DATA_DIR                                = ".cam"
+  REPO_DIR                                = "repo"
+  STATE_FILE                              = "state.json"
+  SOURCE_FILE                             = "sources.list"
+  REPO_INDEX_FILE                         = REPO_DIR + string(filepath.Separator) + "index.json"
+  LOCK_FILE                               = "state.lock"
+  APP_DESCRIPTION_FILE                    = "app.json"
+  APP_VERSIONS_DIR                        = "versions"
+  CANDIDATE_DESCRIPTION_FILE              = "candidate.json"
+  INSTALL_DIR_ENV_KEY                     = "CYPHERAPPS_INSTALL_DIR"
+  INSTALLED_APPS_FILE                     = "index.json"
+  INSTALL_DIR                             = "apps"
+  KEYS_FILE_ENV_KEY                       = "CYPHERNODE_KEYS_FILE"
+  CYPHERNODE_INFO_FILE_ENV_KEY            = "CYPHERNODE_INFO_FILE"
+  DOCKER_COMPOSE_TEMPLATE_REGEXP_TEMPLATE = `<%%= *%s *%%>`
+  TRUST_ZONE_UNTRUSTED                    = "untrusted"
+  TRUST_ZONE_TRUSTED                      = "trusted"
+  TRUST_ZONE_CORE                         = "core"
+  CORE_NETWORK                            = "cyphernodenet"
+  APP_NETWORK                             = "cyphernodeappsnet"
+  TRUSTED_APP_NETWORK                     = "cyphernodetrustedappsnet"
+)
 
-const VERSION = "0.1.0"
-const AUTHOR = "SKP <skp@skp.rocks>"
-const NAME = "cam - Cyphernode apps management tool"
-const DESCRIPTION = "A tool to manager your cypherapps"
-
-const DATA_DIR = ".cam"
-const REPO_DIR = "repo"
-const STATE_FILE = "state.json"
-const SOURCE_FILE = "sources.list"
-const REPO_INDEX_FILE = REPO_DIR+string(filepath.Separator)+"index.json"
-const LOCK_FILE = "state.lock"
-
-const APP_DESCRIPTION_FILE = "app.json"
-const APP_VERSIONS_DIR = "versions"
-const CANDIDATE_DESCRIPTION_FILE = "candidate.json"
-
-const INSTALL_DIR_ENV_KEY = "CYPHERAPPS_INSTALL_DIR"
-const INSTALLED_APPS_FILE = "index.json"
-const INSTALL_DIR = "apps"
-const KEYS_FILE_ENV_KEY = "CYPHERNODE_KEYS_FILE"
-const CYPHERNODE_INFO_FILE_ENV_KEY = "CYPHERNODE_INFO_FILE"
-const DOCKER_COMPOSE_TEMPLATE_REGEXP_TEMPLATE = `<%%= *%s *%%>`
-
-
-var DockerVolumeWhitelist = []string{
-  `^\$(\{ *|)GATEKEEPER_CERTS_PATH(| *\})`, // everything beneath GATEKEEPER_CERTS_PATH
-  `^\$(\{ *|)UNSAFE__CLIGHTNING_PATH(| *\})`, // everything beneath UNSAFE__CLIGHTNING_PATH
-  `^\$(\{ *|)APP_DATA(| *\})`, // everything beneath APP_DATA
-}
-
-var DockerVolumeElementBlacklist = []string{
- "..", // something fishy is going on, maybe trying sth like $APP_DATA/../../
-}
+var (
+  DockerVolumeWhitelist = []string{
+    `^\$(\{ *|)GATEKEEPER_CERTS_PATH(| *\})`,    // everything beneath GATEKEEPER_CERTS_PATH
+    `^\$(\{ *|)TRUSTED__CLIGHTNING_PATH(| *\})`, // everything beneath UNSAFE__CLIGHTNING_PATH
+    `^\$(\{ *|)APP_DATA(| *\})`,                 // everything beneath APP_DATA
+  }
+  // TODO: research if \.\. or \\.\\. is bad
+  // TODO: check env files
+  DockerVolumeElementBlacklist = []string{
+    "..", // something fishy is going on, maybe trying sth like $APP_DATA/../../
+  }
+  ValidTrustZones = []string{
+    TRUST_ZONE_UNTRUSTED, TRUST_ZONE_TRUSTED, TRUST_ZONE_CORE,
+  }
+  DefaultTrustZone = TRUST_ZONE_UNTRUSTED
+)

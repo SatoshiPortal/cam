@@ -48,6 +48,12 @@ func InitAppCommands( app *cli.App ) {
         Action: actions.ActionWrapper(actions.App_install),
       },
       {
+        Name:    "update",
+        Aliases: []string{"u"},
+        Usage:   "updates an app",
+        Action: actions.ActionWrapper(actions.App_update),
+      },
+      {
         Name:    "delete",
         Aliases: []string{"d"},
         Usage:   "deletes an app",

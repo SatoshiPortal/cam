@@ -124,6 +124,91 @@ func InstallApp( app *App, version *version.Version ) error {
         "APP_UPSTREAM_HOST": app.ClientID,
         "APP_ID": app.ClientID,
       }
+
+      // TODO: add keys and key labels to replacements
+      // TODO: add mountpoint to replacements
+
+      dockerComposeTemplate.SaveAsDockerCompose( targetFilePath )
+    } else {
+      _, err = utils.CopyFile(sourceFilePath, targetFilePath)
+      if err != nil {
+        return err
+      }
+    }
+
+  }
+  targetFilePath := filepath.Join(installDirPath, appHash, globals.APP_DESCRIPTION_FILE)
+  appDescriptionJsonBytes, err := json.MarshalIndent( app, "", "  " )
+
+  err = ioutil.WriteFile(targetFilePath, appDescriptionJsonBytes, 0644)
+
+  if err != nil {
+    return err
+  }
+
+  err = installedAppsIndex.Build()
+
+  if err != nil {
+    return err
+  }
+
+  return nil
+}
+
+func UpdateApp( app *App, version *version.Version ) error {
+  installedAppsIndex, err := NewInstalledAppsIndex()
+  appHash := app.GetHash()
+
+  if err == nil {
+    err = installedAppsIndex.Load()
+
+    if err != nil {
+      return err
+    }
+    // Check if app is already installed
+    apps := installedAppsIndex.Search( appHash, true )
+
+    if len(apps) == 0 {
+      return errors.NO_SUCH_APP
+    }
+  }
+
+  candidate := app.GetCandidate( version )
+
+  if candidate == nil {
+    return errors.NO_SUCH_VERSION
+  }
+
+  isRunnable, _ := AppCandidateIsRunnableOnCyphernode( candidate )
+
+  if !isRunnable {
+    return errors.APP_VERSION_IS_NOT_COMPATIBLE
+  }
+
+  err = checkAppSecurity( app, candidate )
+
+  if err != nil {
+    return err
+  }
+
+  installDirPath := utils.GetInstallDirPath()
+
+  files :=  candidate.Files[:]
+  files = append(files,globals.CANDIDATE_DESCRIPTION_FILE)
+
+  for _, file := range files {
+    sourceFilePath := filepath.Join( app.Path, globals.APP_VERSIONS_DIR, candidate.Version.Raw, file )
+    targetFilePath := filepath.Join( installDirPath, appHash, file )
+
+    if file == "docker-compose.yaml" {
+      dockerComposeTemplate, err := dockerCompose.LoadDockerComposeTemplate( sourceFilePath )
+      if err != nil {
+        return err
+      }
+      dockerComposeTemplate.Replacements = &map[string]string{
+        "APP_UPSTREAM_HOST": app.ClientID,
+        "APP_ID": app.ClientID,
+      }
       dockerComposeTemplate.SaveAsDockerCompose( targetFilePath )
     } else {
       _, err = utils.CopyFile(sourceFilePath, targetFilePath)
@@ -259,13 +344,19 @@ func checkAppSecurity( app *App, candidate *AppCandidate ) error {
       return err
     }
 
-    err = dockerComposeTemplate.CheckVolumes()
+    err = dockerComposeTemplate.CheckVolumes( app.TrustZone )
 
     if err != nil {
       return err
     }
 
     err = dockerComposeTemplate.CheckServiceNames()
+
+    if err != nil {
+      return err
+    }
+
+    err = dockerComposeTemplate.CheckNetworks( app.TrustZone )
 
     if err != nil {
       return err

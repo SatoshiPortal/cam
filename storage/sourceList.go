@@ -85,6 +85,31 @@ func (sourceList *SourceList) SourceIndex( sourceString string ) int {
   } )
 }
 
+func (sourceList *SourceList) GetSourceByIndex( index int ) ISource {
+  if index < 0 || index >= len( sourceList.Sources ) {
+    return nil
+  }
+  return sourceList.Sources[index]
+}
+
+func (sourceList *SourceList) GetSourceByString( sourceString string ) ISource {
+  index := sourceList.SourceIndex( sourceString )
+  if index == -1 {
+    return nil
+  }
+  return sourceList.Sources[index]
+}
+
+func (sourceList *SourceList) GetSourceByHash( hash string ) ISource {
+  index := utils.SliceIndex( len(sourceList.Sources), func(i int) bool {
+    return sourceList.Sources[i].GetHash() == hash
+  } )
+  if index == -1 {
+    return nil
+  }
+  return sourceList.Sources[index]
+}
+
 func (sourceList *SourceList) AddSource( sourceString string ) error {
 
   if sourceList.SourceIndex( sourceString ) >= 0 {
@@ -98,6 +123,18 @@ func (sourceList *SourceList) AddSource( sourceString string ) error {
   return nil
 }
 
+func (sourceList *SourceList) UpdateSource( sourceString string ) error {
+  source := sourceList.GetSourceByString( sourceString )
+  if source == nil {
+    return errors.NO_SUCH_SOURCE
+  }
+  err := source.Update()
+  if err != nil {
+    return err
+  }
+  return nil
+}
+
 func (sourceList *SourceList) RemoveSource( sourceString string ) error {
   sourceIndex := sourceList.SourceIndex( sourceString )
   if sourceIndex == -1 {
@@ -107,6 +144,8 @@ func (sourceList *SourceList) RemoveSource( sourceString string ) error {
   sourceList.Sources = append(sourceList.Sources[:sourceIndex], sourceList.Sources[sourceIndex+1:]...)
   return nil
 }
+
+
 
 func (sourceList *SourceList) Save() error {
 

@@ -85,7 +85,7 @@ func LoadDockerComposeTemplate( path string ) (*DockerComposeTemplate, error) {
   return &dockerComposeTemplate,nil
 }
 
-func ( dockerComposeTemplate *DockerComposeTemplate ) CheckVolumes() error {
+func ( dockerComposeTemplate *DockerComposeTemplate ) CheckVolumes( trustZone string ) error {
   if dockerComposeTemplate.Services == nil {
     return nil
   }
@@ -93,10 +93,11 @@ func ( dockerComposeTemplate *DockerComposeTemplate ) CheckVolumes() error {
     if service.Volumes == nil {
       continue
     }
+    output.Noticef( "Checking volumes for unallowed access\n" )
     for _, volume := range *service.Volumes {
       arr := strings.Split( volume, ":" )
       hostDirectory := strings.Trim( arr[0], " \n" )
-      output.Noticef( "Checking: %s\n", hostDirectory )
+      output.Noticef( "...%s\n", hostDirectory )
       if utils.SliceIndex( len(globals.DockerVolumeWhitelist), func(i int) bool {
         pattern := globals.DockerVolumeWhitelist[i]
         match, err := regexp.MatchString(pattern, hostDirectory)
@@ -105,8 +106,15 @@ func ( dockerComposeTemplate *DockerComposeTemplate ) CheckVolumes() error {
         return errors.VOLUME_NOT_IN_WHITELIST
       }
 
-      if strings.HasPrefix(hostDirectory, "$UNSAFE__" ) {
-        output.Warningf( "Volume %s is marked as unsafe. Please make sure, this app is not malicious.\n", hostDirectory)
+      if strings.HasPrefix(hostDirectory, "$CORE__" ) &&
+          trustZone != globals.TRUST_ZONE_CORE {
+        return errors.APP_HAS_WRONG_TRUST_ZONE
+      }
+
+      if strings.HasPrefix(hostDirectory, "$TRUSTED__" ) &&
+        trustZone != globals.TRUST_ZONE_TRUSTED &&
+        trustZone != globals.TRUST_ZONE_CORE {
+        return errors.APP_HAS_WRONG_TRUST_ZONE
       }
 
       if utils.SliceIndex( len(globals.DockerVolumeElementBlacklist), func(i int) bool {
@@ -114,6 +122,67 @@ func ( dockerComposeTemplate *DockerComposeTemplate ) CheckVolumes() error {
       } ) != -1 {
         return errors.VOLUME_HAS_ILLEGAL_ELEMENTS
       }
+    }
+  }
+  return nil
+}
+
+func ( dockerComposeTemplate *DockerComposeTemplate ) CheckNetworks( trustZone string ) error {
+  // TODO: implement
+  if dockerComposeTemplate.Networks == nil {
+    return nil
+  }
+
+  networkIsOk := func( networkName string, trustZone string ) bool {
+    if networkName == globals.CORE_NETWORK &&
+        trustZone != globals.TRUST_ZONE_CORE {
+      return false
+    }
+    if networkName == globals.TRUSTED_APP_NETWORK &&
+      trustZone != globals.TRUST_ZONE_CORE &&
+      trustZone != globals.TRUST_ZONE_TRUSTED {
+      return false
+    }
+    return true
+  }
+
+  // check network definitions
+  output.Noticef( "Checking network definitions for unallowed access\n" )
+  for networkName, _ := range *dockerComposeTemplate.Networks {
+    output.Noticef( "...%s\n", networkName )
+    if !networkIsOk(networkName, trustZone) {
+      return errors.APP_HAS_WRONG_TRUST_ZONE
+    }
+  }
+
+  if dockerComposeTemplate.Services == nil {
+    return nil
+  }
+
+  // check service networks
+  for _, service := range *dockerComposeTemplate.Services {
+    if service.Networks == nil {
+      continue
+    }
+    output.Noticef( "Checking services for unallowed access\n" )
+    for _, networkName := range *service.Networks {
+      output.Noticef( "...%s\n", networkName )
+      if !networkIsOk(networkName, trustZone) {
+        return errors.APP_HAS_WRONG_TRUST_ZONE
+      }
+    }
+  }
+  return nil
+}
+
+func ( dockerComposeTemplate *DockerComposeTemplate ) CheckServiceNames() error {
+  if dockerComposeTemplate.Services == nil {
+    return nil
+  }
+  for name, _ := range *dockerComposeTemplate.Services {
+    r := regexp.MustCompile(fmt.Sprintf( globals.DOCKER_COMPOSE_TEMPLATE_REGEXP_TEMPLATE, "(APP_ID|APP_UPSTREAM_HOST)" ))
+    if r != nil && !r.MatchString( name ) {
+      return errors.SERVICE_NAME_NOT_UNIQUE
     }
   }
   return nil
@@ -128,19 +197,6 @@ func ( dockerComposeTemplate *DockerComposeTemplate ) CleanUnsafeEntries() {
       service.ContainerName = nil
     }
   }
-}
-
-func ( dockerComposeTemplate *DockerComposeTemplate ) CheckServiceNames() error {
-  if dockerComposeTemplate.Services == nil {
-    return nil
-  }
-  for name, _ := range *dockerComposeTemplate.Services {
-    r := regexp.MustCompile(fmt.Sprintf( globals.DOCKER_COMPOSE_TEMPLATE_REGEXP_TEMPLATE, "(APP_ID|APP_UPSTREAM_HOST)" ))
-    if r != nil && !r.MatchString( name ) {
-      return errors.SERVICE_NAME_NOT_UNIQUE
-    }
-  }
-  return nil
 }
 
 func ( dockerComposeTemplate *DockerComposeTemplate ) Replace( dockerComposeTemplateBytes []byte ) ([]byte, error) {
