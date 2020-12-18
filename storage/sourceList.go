@@ -28,7 +28,6 @@ import (
   "bufio"
   "fmt"
   "github.com/SatoshiPortal/cam/errors"
-  "github.com/SatoshiPortal/cam/globals"
   "github.com/SatoshiPortal/cam/output"
   "github.com/SatoshiPortal/cam/utils"
   "os"
@@ -43,9 +42,7 @@ type SourceList struct {
 func NewSourceList( path string ) *SourceList {
   return &SourceList{
     Path: path,
-    Sources: []ISource{
-      NewGitSource( globals.CYPHERAPPS_REPO ),
-    },
+    Sources: []ISource{},
   }
 }
 

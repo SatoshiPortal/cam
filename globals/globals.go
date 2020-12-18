@@ -27,7 +27,6 @@ package globals
 import "path/filepath"
 
 const (
-  CYPHERAPPS_REPO                         = "git://github.com/SatoshiPortal/cypherapps.git"
   VERSION                                 = "0.1.0"
   AUTHOR                                  = "SKP <skp@skp.rocks>"
   NAME                                    = "cam - Cyphernode apps management tool"
