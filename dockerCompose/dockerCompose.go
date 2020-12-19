@@ -30,7 +30,7 @@ import (
   "github.com/SatoshiPortal/cam/globals"
   "github.com/SatoshiPortal/cam/output"
   "github.com/SatoshiPortal/cam/utils"
-  "gopkg.in/yaml.v2"
+  "gopkg.in/yaml.v3"
   "io/ioutil"
   "regexp"
   "strings"
@@ -48,7 +48,7 @@ type DockerComposeTemplate struct {
 
 type Network struct {
   Driver           *string `yaml:"driver,omitempty"`
-  External         *string `yaml:"external,omitempty"`
+  External         *bool `yaml:"external,omitempty"`
   DriverOpts       *map[string]string `yaml:"driver_opts,omitempty"`
 }
 
@@ -263,3 +263,4 @@ func ( dockerComposeTemplate *DockerComposeTemplate ) SaveAsDockerCompose( path 
   }
   return nil
 }
+
