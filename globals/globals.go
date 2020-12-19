@@ -48,25 +48,33 @@ const (
   DOCKER_COMPOSE_TEMPLATE_REGEXP_TEMPLATE = `<%%= *%s *%%>`
   TRUST_ZONE_UNTRUSTED                    = "untrusted"
   TRUST_ZONE_TRUSTED                      = "trusted"
+  TRUST_ZONE_SERVICE                      = "service"
   TRUST_ZONE_CORE                         = "core"
   CORE_NETWORK                            = "cyphernodenet"
-  APP_NETWORK                             = "cyphernodeappsnet"
-  TRUSTED_APP_NETWORK                     = "cyphernodetrustedappsnet"
+  APPS_NETWORK                            = "cyphernodeappsnet"
+  SERVICE_NETWORK                         = "cyphernodeservicenet"
 )
 
 var (
+  TRUST_ZONE_CORE_PATTERN    = `^\$(\{ *|)CORE__.+?_PATH(| *\})` // everything beneath TRUSTED__<ANYTHING>_PATH
+  TRUST_ZONE_TRUSTED_PATTERN = `^\$(\{ *|)TRUSTED__.+?_PATH(| *\})` // everything beneath TRUSTED__<ANYTHING>_PATH
+  TRUST_ZONE_SERVICE_PATTERN = `^\$(\{ *|)SERVICE__.+?_PATH(| *\})` // everything beneath SERVICE__<ANYTHING>_PATH
+
   DockerVolumeWhitelist = []string{
     `^\$(\{ *|)GATEKEEPER_CERTS_PATH(| *\})`,    // everything beneath GATEKEEPER_CERTS_PATH
-    `^\$(\{ *|)TRUSTED__CLIGHTNING_PATH(| *\})`, // everything beneath UNSAFE__CLIGHTNING_PATH
-    `^\$(\{ *|)APP_DATA(| *\})`,                 // everything beneath APP_DATA
+    `^\$(\{ *|)APP_DATA_PATH(| *\})`,            // everything beneath APP_DATA_PATH
+    TRUST_ZONE_CORE_PATTERN,
+    TRUST_ZONE_TRUSTED_PATTERN,
+    TRUST_ZONE_SERVICE_PATTERN,
   }
+
   // TODO: research if \.\. or \\.\\. is bad
   // TODO: check env files
   DockerVolumeElementBlacklist = []string{
     "..", // something fishy is going on, maybe trying sth like $APP_DATA/../../
   }
   ValidTrustZones = []string{
-    TRUST_ZONE_UNTRUSTED, TRUST_ZONE_TRUSTED, TRUST_ZONE_CORE,
+    TRUST_ZONE_UNTRUSTED, TRUST_ZONE_TRUSTED, TRUST_ZONE_SERVICE, TRUST_ZONE_CORE,
   }
   DefaultTrustZone = TRUST_ZONE_UNTRUSTED
 )

@@ -106,14 +106,39 @@ func ( dockerComposeTemplate *DockerComposeTemplate ) CheckVolumes( trustZone st
         return errors.VOLUME_NOT_IN_WHITELIST
       }
 
-      if strings.HasPrefix(hostDirectory, "$CORE__" ) &&
-          trustZone != globals.TRUST_ZONE_CORE {
+      needsCoreZone, err := regexp.MatchString(globals.TRUST_ZONE_CORE_PATTERN, hostDirectory)
+
+      if err != nil {
+        return err
+      }
+
+      needsTrustedZone, err := regexp.MatchString(globals.TRUST_ZONE_TRUSTED_PATTERN, hostDirectory)
+
+      if err != nil {
+        return err
+      }
+
+      needsServiceZone, err := regexp.MatchString(globals.TRUST_ZONE_SERVICE_PATTERN, hostDirectory)
+
+      if err != nil {
+        return err
+      }
+
+      if needsCoreZone &&
+        trustZone != globals.TRUST_ZONE_CORE {
         return errors.APP_HAS_WRONG_TRUST_ZONE
       }
 
-      if strings.HasPrefix(hostDirectory, "$TRUSTED__" ) &&
-        trustZone != globals.TRUST_ZONE_TRUSTED &&
+      if needsServiceZone &&
+        trustZone != globals.TRUST_ZONE_SERVICE &&
         trustZone != globals.TRUST_ZONE_CORE {
+        return errors.APP_HAS_WRONG_TRUST_ZONE
+      }
+
+      if needsTrustedZone &&
+          trustZone != globals.TRUST_ZONE_TRUSTED &&
+          trustZone != globals.TRUST_ZONE_SERVICE &&
+          trustZone != globals.TRUST_ZONE_CORE {
         return errors.APP_HAS_WRONG_TRUST_ZONE
       }
 
@@ -127,22 +152,34 @@ func ( dockerComposeTemplate *DockerComposeTemplate ) CheckVolumes( trustZone st
   return nil
 }
 
-func ( dockerComposeTemplate *DockerComposeTemplate ) CheckNetworks( trustZone string ) error {
+func ( dockerComposeTemplate *DockerComposeTemplate ) CheckNetworks( trustZone string, clientID string ) error {
   // TODO: implement
   if dockerComposeTemplate.Networks == nil {
     return nil
   }
 
-  networkIsOk := func( networkName string, trustZone string ) bool {
+  networkIsOk := func( networkName string, trustZone string, clientID string ) bool {
+
+    // either use one of the predefined networks or
+    // local networks prefixed with clientID
+
     if networkName == globals.CORE_NETWORK &&
         trustZone != globals.TRUST_ZONE_CORE {
       return false
     }
-    if networkName == globals.TRUSTED_APP_NETWORK &&
+    if networkName == globals.SERVICE_NETWORK &&
       trustZone != globals.TRUST_ZONE_CORE &&
-      trustZone != globals.TRUST_ZONE_TRUSTED {
+      trustZone != globals.TRUST_ZONE_SERVICE {
       return false
     }
+
+    isLocalNetwork, _ := regexp.MatchString( "^"+clientID+"_", networkName )
+
+    if networkName != globals.APPS_NETWORK &&
+      !isLocalNetwork {
+      return false
+    }
+
     return true
   }
 
@@ -150,7 +187,7 @@ func ( dockerComposeTemplate *DockerComposeTemplate ) CheckNetworks( trustZone s
   output.Noticef( "Checking network definitions for unallowed access\n" )
   for networkName, _ := range *dockerComposeTemplate.Networks {
     output.Noticef( "...%s\n", networkName )
-    if !networkIsOk(networkName, trustZone) {
+    if !networkIsOk(networkName, trustZone, clientID) {
       return errors.APP_HAS_WRONG_TRUST_ZONE
     }
   }
@@ -167,7 +204,7 @@ func ( dockerComposeTemplate *DockerComposeTemplate ) CheckNetworks( trustZone s
     output.Noticef( "Checking services for unallowed access\n" )
     for _, networkName := range *service.Networks {
       output.Noticef( "...%s\n", networkName )
-      if !networkIsOk(networkName, trustZone) {
+      if !networkIsOk(networkName, trustZone, clientID) {
         return errors.APP_HAS_WRONG_TRUST_ZONE
       }
     }

@@ -123,6 +123,7 @@ func InstallApp( app *App, version *version.Version ) error {
       dockerComposeTemplate.Replacements = &map[string]string{
         "APP_UPSTREAM_HOST": app.ClientID,
         "APP_ID": app.ClientID,
+        "APP_MOUNT_POINT": app.MountPoint,
       }
 
       // TODO: add keys and key labels to replacements
@@ -208,6 +209,7 @@ func UpdateApp( app *App, version *version.Version ) error {
       dockerComposeTemplate.Replacements = &map[string]string{
         "APP_UPSTREAM_HOST": app.ClientID,
         "APP_ID": app.ClientID,
+        "APP_MOUNT_POINT": app.MountPoint,
       }
       dockerComposeTemplate.SaveAsDockerCompose( targetFilePath )
     } else {
@@ -356,7 +358,7 @@ func checkAppSecurity( app *App, candidate *AppCandidate ) error {
       return err
     }
 
-    err = dockerComposeTemplate.CheckNetworks( app.TrustZone )
+    err = dockerComposeTemplate.CheckNetworks( app.TrustZone, app.ClientID )
 
     if err != nil {
       return err
