@@ -245,7 +245,7 @@ func ( dockerComposeTemplate *DockerComposeTemplate ) Replace( dockerComposeTemp
   for toReplace, replaceWith := range *dockerComposeTemplate.Replacements {
     r := regexp.MustCompile(fmt.Sprintf( globals.DOCKER_COMPOSE_TEMPLATE_REGEXP_TEMPLATE, toReplace ))
     if r != nil {
-      dockerComposeTemplateBytes = r.ReplaceAll( dockerComposeTemplateBytes, []byte(replaceWith) )
+      dockerComposeTemplateBytes = r.ReplaceAllLiteral( dockerComposeTemplateBytes, []byte(replaceWith) )
     }
   }
   return dockerComposeTemplateBytes, nil
