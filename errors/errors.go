@@ -59,3 +59,7 @@ var APP_VERSION_IS_NOT_COMPATIBLE = goErrors.New( "app version is not compatible
 var APP_MOUNTPOINT_BLOCKED = goErrors.New( "app mount point is used by other app" )
 var SERVICE_NAME_NOT_UNIQUE = goErrors.New( "service name not unique" )
 var APP_HAS_WRONG_TRUST_ZONE = goErrors.New( "app has wrong trust zone" )
+
+var COMPAT_API = goErrors.New( "api version is not compatible" )
+var COMPAT_MISSING_FEATURE = goErrors.New( "required feature is missing" )
+var COMPAT_FEATURE_VERSION = goErrors.New( "required feature has incompatible version" )

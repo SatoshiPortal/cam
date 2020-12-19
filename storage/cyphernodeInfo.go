@@ -72,22 +72,22 @@ func (dockerImage *DockerImage) UnmarshalJSON(data []byte) error {
   return nil
 }
 
-func AppCandidateIsRunnableOnCyphernode( appCandidate *AppCandidate ) (bool, error) {
+func AppCandidateIsRunnableOnCyphernode( appCandidate *AppCandidate ) error {
 
   if !utils.CyphernodeInfoFileExists() {
-    return false, errors.CYPHERNODE_INFO_FILE_DOES_NOT_EXIST
+    return errors.CYPHERNODE_INFO_FILE_DOES_NOT_EXIST
   }
 
   var cyphernodeInfo CyphernodeInfo
 
   cyphernodeInfoJsonBytes, err := ioutil.ReadFile( utils.GetCyphernodeInfoFilePath() )
   if err != nil {
-    return false, err
+    return err
   }
 
   err = json.Unmarshal( cyphernodeInfoJsonBytes, &cyphernodeInfo )
   if err != nil {
-    return false, err
+    return err
   }
 
   for _, dependency := range appCandidate.Dependencies {
@@ -96,21 +96,21 @@ func AppCandidateIsRunnableOnCyphernode( appCandidate *AppCandidate ) (bool, err
       if utils.SliceIndex( len(cyphernodeInfo.ApiVersions), func(i int) bool {
         return cyphernodeInfo.ApiVersions[i] == dependency.Version.Raw
       } ) == -1 {
-        return false, nil
+        return errors.COMPAT_API
       }
     } else {
       cyphernodeFeature := findCyphernodeFeature( &cyphernodeInfo, dependency.Label )
-      if cyphernodeFeature == nil {
-        return false, nil
+      if cyphernodeFeature == nil || !cyphernodeFeature.Active {
+        return errors.COMPAT_MISSING_FEATURE
       }
 
       if !dependency.Version.IsCompatible(cyphernodeFeature.Docker.Version) {
-        return false, nil
+        return errors.COMPAT_FEATURE_VERSION
       }
     }
   }
 
-  return true, nil
+  return nil
 }
 
 func findCyphernodeFeature( cyphernodeInfo *CyphernodeInfo, label string ) *CyphernodeFeature {
