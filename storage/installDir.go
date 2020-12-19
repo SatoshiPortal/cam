@@ -123,7 +123,7 @@ func InstallApp( app *App, version *version.Version ) error {
       dockerComposeTemplate.Replacements = &map[string]string{
         "APP_UPSTREAM_HOST": app.ClientID,
         "APP_ID": app.ClientID,
-        "APP_MOUNT_POINT": app.MountPoint,
+        "APP_MOUNTPOINT": app.MountPoint,
       }
 
       // TODO: add keys and key labels to replacements
