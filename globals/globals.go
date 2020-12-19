@@ -56,13 +56,13 @@ const (
 )
 
 var (
-  TRUST_ZONE_CORE_PATTERN    = `^\$(\{ *|)CORE__.+?_PATH(| *\})` // everything beneath TRUSTED__<ANYTHING>_PATH
-  TRUST_ZONE_TRUSTED_PATTERN = `^\$(\{ *|)TRUSTED__.+?_PATH(| *\})` // everything beneath TRUSTED__<ANYTHING>_PATH
-  TRUST_ZONE_SERVICE_PATTERN = `^\$(\{ *|)SERVICE__.+?_PATH(| *\})` // everything beneath SERVICE__<ANYTHING>_PATH
+  TRUST_ZONE_CORE_PATTERN    = `^\$(\{ *|)CORE__.+?(| *\})` // everything beneath TRUSTED__<ANYTHING>_PATH
+  TRUST_ZONE_TRUSTED_PATTERN = `^\$(\{ *|)TRUSTED__.+?(| *\})` // everything beneath TRUSTED__<ANYTHING>_PATH
+  TRUST_ZONE_SERVICE_PATTERN = `^\$(\{ *|)SERVICE__.+?(| *\})` // everything beneath SERVICE__<ANYTHING>_PATH
 
   DockerVolumeWhitelist = []string{
-    `^\$(\{ *|)GATEKEEPER_CERTS_PATH(| *\})`,    // everything beneath GATEKEEPER_CERTS_PATH
-    `^\$(\{ *|)APP_DATA_PATH(| *\})`,            // everything beneath APP_DATA_PATH
+    `^\$(\{ *|)GATEKEEPER_CERTS_DATAPATH(| *\})`,    // everything beneath GATEKEEPER_CERTS_PATH
+    `^\$(\{ *|)APP_DATAPATH(| *\})`,            // everything beneath APP_DATA_PATH
     TRUST_ZONE_CORE_PATTERN,
     TRUST_ZONE_TRUSTED_PATTERN,
     TRUST_ZONE_SERVICE_PATTERN,
