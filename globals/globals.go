@@ -56,6 +56,25 @@ const (
 )
 
 var (
+  DOCKER_COMPOSE_ALLOWED_MAIN_SERVICE_LABELS = []string{
+    "^traefik\\.http\\.middlewares\\.<%= *APP_ID *%>-headers\\.headers\\.customrequestheaders\\.",
+    "^traefik\\.http\\.middlewares\\.<%= *APP_ID *%>-headers\\.headers\\.customresponseheaders\\.",
+    "^traefik\\.http\\.services\\.<%= *APP_ID *%>\\.loadbalancer\\.server\\.port=\\d+",
+  }
+)
+
+const (
+  DOCKER_COMPOSE_LABEL_TRAEFIK_ENABLE   = "traefik.enable=true"
+  DOCKER_COMPOSE_LABEL_MOUNTPOINT_RULE  = "traefik.http.routers.<%= APP_ID %>.rule=PathPrefix(`/<%= APP_MOUNTPOINT %>`)"
+  DOCKER_COMPOSE_LABEL_ENTRYPOINTS      = "traefik.http.routers.<%= APP_ID %>.entrypoints=web,websecure"
+  DOCKER_COMPOSE_LABEL_MIDDLEWARES      = "traefik.http.routers.<%= APP_ID %>.middlewares=<%= APP_ID %>-stripprefix@docker"
+  DOCKER_COMPOSE_LABEL_ROUTER_SERVICE   = "traefik.http.routers.<%= APP_ID %>.service=<%= APP_ID %>"
+  DOCKER_COMPOSE_LABEL_MW_STRIPPREXIX   = "traefik.http.middlewares.<%= APP_ID %>-stripprefix.stripprefix.prefixes=/<%= APP_MOUNTPOINT %>,/<%= APP_MOUNTPOINT %>/"
+  DOCKER_COMPOSE_LABEL_FORCE_SLASH      = "traefik.http.middlewares.<%= APP_ID %>-stripprefix.stripprefix.forceSlash=true"
+  DOCKER_COMPOSE_LABEL_PASS_HOST_HEADER = "traefik.frontend.passHostHeader=true"
+)
+
+var (
   TRUST_ZONE_CORE_PATTERN    = `^\$(\{ *|)CORE__.+?(| *\})` // everything beneath TRUSTED__<ANYTHING>_PATH
   TRUST_ZONE_TRUSTED_PATTERN = `^\$(\{ *|)TRUSTED__.+?(| *\})` // everything beneath TRUSTED__<ANYTHING>_PATH
   TRUST_ZONE_SERVICE_PATTERN = `^\$(\{ *|)SERVICE__.+?(| *\})` // everything beneath SERVICE__<ANYTHING>_PATH

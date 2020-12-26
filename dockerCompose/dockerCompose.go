@@ -26,6 +26,7 @@ package dockerCompose
 
 import (
   "fmt"
+  "github.com/SatoshiPortal/cam/cyphernodeInfo"
   "github.com/SatoshiPortal/cam/errors"
   "github.com/SatoshiPortal/cam/globals"
   "github.com/SatoshiPortal/cam/output"
@@ -39,11 +40,12 @@ import (
 // based on https://github.com/digibib/docker-compose-dot/blob/master/docker-compose-dot.go
 
 type DockerComposeTemplate struct {
-  Version  *string
-  Networks *map[string]Network `yaml:"networks,omitempty"`
-  Volumes  *map[string]Volume `yaml:"volumes,omitempty"`
-  Services *map[string]Service `yaml:"services,omitempty"`
-  Replacements *map[string]string `yaml:"-"`
+  Version       *string
+  Networks      *map[string]Network `yaml:"networks,omitempty"`
+  Volumes       *map[string]Volume  `yaml:"volumes,omitempty"`
+  Services      *map[string]Service `yaml:"services,omitempty"`
+  Replacements  *map[string]string  `yaml:"-"`
+  IsInSwarmMode bool                `yaml:"-"`
 }
 
 type Network struct {
@@ -63,6 +65,7 @@ type Service struct {
   Networks          *[]string `yaml:"networks,omitempty"`
   Volumes           *[]string `yaml:"volumes,omitempty"`
   Labels            *[]string `yaml:"labels,omitempty"`
+  Deploy            *Deploy `yaml:"deploy,omitempty"`
   Ports             *[]string `yaml:"ports,omitempty"`
   Command           *interface{} `yaml:"command,omitempty"`
   ContainerName     *string `yaml:"container_name,omitempty"`
@@ -71,7 +74,12 @@ type Service struct {
   Restart           *string `yaml:"restart,omitempty"`
 }
 
-func LoadDockerComposeTemplate( path string ) (*DockerComposeTemplate, error) {
+// We only care about the labels right now
+type Deploy struct {
+  Labels            *[]string `yaml:"labels,omitempty"`
+}
+
+func LoadDockerComposeTemplate( path string, isInSwarmMode bool ) (*DockerComposeTemplate, error) {
   dockerComposeTemplateBytes, err := ioutil.ReadFile(path)
   if err != nil {
     return nil, err
@@ -82,7 +90,67 @@ func LoadDockerComposeTemplate( path string ) (*DockerComposeTemplate, error) {
   if err != nil {
     return nil,err
   }
+  dockerComposeTemplate.IsInSwarmMode = isInSwarmMode
+  dockerComposeTemplate.StripLabels()
   return &dockerComposeTemplate,nil
+}
+
+func ( dockerComposeTemplate *DockerComposeTemplate ) StripLabels() {
+  // remove all docker labels, except some allowed ones from template
+  // might be security risk, since they are directly read by
+  // docker and we want control over what gets passed to
+  // docker
+
+  // only labels in service.labels are used and rewritten for either
+  // compose or swarm mode.
+  // service.deploy.labels in the template are ignored
+
+  isInSwarmMode, _ := cyphernodeInfo.CyphernodeIsDockerSwarm()
+
+  allowedLabels := func( labels *[]string ) *[]string {
+    var newLabels []string
+    for _, label := range *labels {
+      for _, allowedLabel := range globals.DOCKER_COMPOSE_ALLOWED_MAIN_SERVICE_LABELS {
+        labelIsAllowed, _ := regexp.MatchString( allowedLabel, strings.Trim( label, " " ) )
+        if labelIsAllowed {
+          newLabels = append(newLabels, label)
+        }
+      }
+    }
+    return &newLabels
+  }
+
+  for serviceKey, service := range *dockerComposeTemplate.Services {
+    foundMainService, err := regexp.MatchString(
+      "^"+fmt.Sprintf(globals.DOCKER_COMPOSE_TEMPLATE_REGEXP_TEMPLATE, "APP_UPSTREAM_HOST" )+"$" ,
+      strings.Trim(serviceKey, " " ) )
+
+    if foundMainService && err == nil {
+      // allow certain labels for main service
+      if isInSwarmMode {
+        if service.Deploy == nil {
+          service.Deploy = &Deploy{}
+        }
+        service.Deploy.Labels = allowedLabels( service.Labels )
+        service.Labels = nil
+      } else {
+        if service.Labels == nil {
+          service.Labels = &[]string{}
+        }
+        service.Labels = allowedLabels( service.Labels )
+        if service.Deploy != nil {
+          service.Deploy.Labels = nil
+        }
+      }
+
+    } else {
+      service.Labels = nil
+      if service.Deploy != nil {
+        service.Deploy.Labels = nil
+      }
+    }
+    (*dockerComposeTemplate.Services)[serviceKey] = service
+  }
 }
 
 func ( dockerComposeTemplate *DockerComposeTemplate ) CheckVolumes( trustZone string ) error {
@@ -263,4 +331,3 @@ func ( dockerComposeTemplate *DockerComposeTemplate ) SaveAsDockerCompose( path 
   }
   return nil
 }
-

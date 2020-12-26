@@ -22,28 +22,29 @@
  * SOFTWARE.
  */
 
-package storage
+package cyphernodeInfo
 
 import (
   "encoding/json"
-  goErrors "github.com/pkg/errors"
   "github.com/SatoshiPortal/cam/errors"
   "github.com/SatoshiPortal/cam/utils"
   "github.com/SatoshiPortal/cam/version"
+  goErrors "github.com/pkg/errors"
   "io/ioutil"
   "strings"
 )
 
 type CyphernodeInfo struct {
-  ApiVersions []string `json:"api_versions"`
-  Features []*CyphernodeFeature `json:"features"`
+  ApiVersions []string                  `json:"api_versions"`
+  Features []*CyphernodeFeature         `json:"features"`
   OptionalFeatures []*CyphernodeFeature `json:"optional_features"`
-  BitcoinCoreVersion *version.Version `json:"bitcoin_version"`
+  BitcoinCoreVersion *version.Version   `json:"bitcoin_version"`
+  DockerMode string `json:"docker_mode"`
 }
 
 type CyphernodeFeature struct {
   Label string `json:"label"`
-  Active bool `json:"active"`
+  Active bool         `json:"active"`
   Docker *DockerImage `json:"docker"`
 }
 
@@ -72,48 +73,7 @@ func (dockerImage *DockerImage) UnmarshalJSON(data []byte) error {
   return nil
 }
 
-func AppCandidateIsRunnableOnCyphernode( appCandidate *AppCandidate ) error {
-
-  if !utils.CyphernodeInfoFileExists() {
-    return errors.CYPHERNODE_INFO_FILE_DOES_NOT_EXIST
-  }
-
-  var cyphernodeInfo CyphernodeInfo
-
-  cyphernodeInfoJsonBytes, err := ioutil.ReadFile( utils.GetCyphernodeInfoFilePath() )
-  if err != nil {
-    return err
-  }
-
-  err = json.Unmarshal( cyphernodeInfoJsonBytes, &cyphernodeInfo )
-  if err != nil {
-    return err
-  }
-
-  for _, dependency := range appCandidate.Dependencies {
-
-    if dependency.Label == "api" {
-      if utils.SliceIndex( len(cyphernodeInfo.ApiVersions), func(i int) bool {
-        return cyphernodeInfo.ApiVersions[i] == dependency.Version.Raw
-      } ) == -1 {
-        return errors.COMPAT_API
-      }
-    } else {
-      cyphernodeFeature := findCyphernodeFeature( &cyphernodeInfo, dependency.Label )
-      if cyphernodeFeature == nil || !cyphernodeFeature.Active {
-        return errors.COMPAT_MISSING_FEATURE
-      }
-
-      if !dependency.Version.IsCompatible(cyphernodeFeature.Docker.Version) {
-        return errors.COMPAT_FEATURE_VERSION
-      }
-    }
-  }
-
-  return nil
-}
-
-func findCyphernodeFeature( cyphernodeInfo *CyphernodeInfo, label string ) *CyphernodeFeature {
+func (cyphernodeInfo *CyphernodeInfo) FindCyphernodeFeature( label string ) *CyphernodeFeature {
   for _, feature := range cyphernodeInfo.Features {
     if feature.Label == label {
       return feature
@@ -125,4 +85,26 @@ func findCyphernodeFeature( cyphernodeInfo *CyphernodeInfo, label string ) *Cyph
     }
   }
   return nil
+}
+
+func CyphernodeIsDockerSwarm() (bool, error) {
+
+  if !utils.CyphernodeInfoFileExists() {
+    return false, errors.CYPHERNODE_INFO_FILE_DOES_NOT_EXIST
+  }
+
+  var cyphernodeInfo CyphernodeInfo
+
+  cyphernodeInfoJsonBytes, err := ioutil.ReadFile( utils.GetCyphernodeInfoFilePath() )
+  if err != nil {
+    return false, err
+  }
+
+  err = json.Unmarshal( cyphernodeInfoJsonBytes, &cyphernodeInfo )
+  if err != nil {
+    return false, err
+  }
+
+  return cyphernodeInfo.DockerMode == "swarm", nil
+
 }

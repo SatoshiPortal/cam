@@ -26,6 +26,8 @@ package storage
 
 import (
   "encoding/json"
+  "fmt"
+  "github.com/SatoshiPortal/cam/cyphernodeInfo"
   "github.com/SatoshiPortal/cam/dockerCompose"
   "github.com/SatoshiPortal/cam/errors"
   "github.com/SatoshiPortal/cam/globals"
@@ -34,6 +36,8 @@ import (
   "io/ioutil"
   "os"
   "path/filepath"
+  "regexp"
+  "strings"
 )
 
 func InitInstallDir() error {
@@ -86,7 +90,7 @@ func InstallApp( app *App, version *version.Version ) error {
     return errors.NO_SUCH_VERSION
   }
 
-  isRunnableErr := AppCandidateIsRunnableOnCyphernode( candidate )
+  isRunnableErr := candidate.IsRunnableOnThisCyphernode()
 
   if isRunnableErr != nil {
     return isRunnableErr
@@ -116,7 +120,12 @@ func InstallApp( app *App, version *version.Version ) error {
     targetFilePath := filepath.Join( installDirPath, appHash, file )
 
     if file == "docker-compose.yaml" {
-      dockerComposeTemplate, err := dockerCompose.LoadDockerComposeTemplate( sourceFilePath )
+      isInSwarmMode, err := cyphernodeInfo.CyphernodeIsDockerSwarm()
+      if err != nil {
+        return err
+      }
+
+      dockerComposeTemplate, err := dockerCompose.LoadDockerComposeTemplate( sourceFilePath, isInSwarmMode)
       if err != nil {
         return err
       }
@@ -129,6 +138,7 @@ func InstallApp( app *App, version *version.Version ) error {
       // TODO: add keys and key labels to replacements
       // TODO: add mountpoint to replacements
 
+      createTraefikLabels( dockerComposeTemplate, isInSwarmMode )
       dockerComposeTemplate.SaveAsDockerCompose( targetFilePath )
     } else {
       _, err = utils.CopyFile(sourceFilePath, targetFilePath)
@@ -180,7 +190,7 @@ func UpdateApp( app *App, version *version.Version ) error {
     return errors.NO_SUCH_VERSION
   }
 
-  isRunnableErr := AppCandidateIsRunnableOnCyphernode( candidate )
+  isRunnableErr := candidate.IsRunnableOnThisCyphernode()
 
   if isRunnableErr != nil {
     return isRunnableErr
@@ -202,7 +212,12 @@ func UpdateApp( app *App, version *version.Version ) error {
     targetFilePath := filepath.Join( installDirPath, appHash, file )
 
     if file == "docker-compose.yaml" {
-      dockerComposeTemplate, err := dockerCompose.LoadDockerComposeTemplate( sourceFilePath )
+      isInSwarmMode, err := cyphernodeInfo.CyphernodeIsDockerSwarm()
+      if err != nil {
+        return err
+      }
+
+      dockerComposeTemplate, err := dockerCompose.LoadDockerComposeTemplate( sourceFilePath, isInSwarmMode )
       if err != nil {
         return err
       }
@@ -211,6 +226,8 @@ func UpdateApp( app *App, version *version.Version ) error {
         "APP_ID": app.ClientID,
         "APP_MOUNTPOINT": app.MountPoint,
       }
+
+      createTraefikLabels( dockerComposeTemplate, isInSwarmMode )
       dockerComposeTemplate.SaveAsDockerCompose( targetFilePath )
     } else {
       _, err = utils.CopyFile(sourceFilePath, targetFilePath)
@@ -334,13 +351,55 @@ func RemoveKeyFromApp( app *App, key *Key ) error {
   return nil
 }
 
+func createTraefikLabels( dockerComposeTemplate *dockerCompose.DockerComposeTemplate, isInSwarmMode bool ) {
+
+  labels := []string{
+    globals.DOCKER_COMPOSE_LABEL_TRAEFIK_ENABLE,
+    globals.DOCKER_COMPOSE_LABEL_PASS_HOST_HEADER,
+    globals.DOCKER_COMPOSE_LABEL_MOUNTPOINT_RULE,
+    globals.DOCKER_COMPOSE_LABEL_ENTRYPOINTS,
+    globals.DOCKER_COMPOSE_LABEL_MIDDLEWARES,
+    globals.DOCKER_COMPOSE_LABEL_ROUTER_SERVICE,
+    globals.DOCKER_COMPOSE_LABEL_MW_STRIPPREXIX,
+    globals.DOCKER_COMPOSE_LABEL_FORCE_SLASH,
+  }
+
+  for serviceKey, service := range *dockerComposeTemplate.Services {
+    foundMainService, err := regexp.MatchString(
+      "^"+fmt.Sprintf(globals.DOCKER_COMPOSE_TEMPLATE_REGEXP_TEMPLATE, "APP_UPSTREAM_HOST" )+"$" ,
+      strings.Trim(serviceKey, " " ) )
+
+    if foundMainService && err == nil {
+      if isInSwarmMode {
+        if service.Deploy == nil {
+          service.Deploy = &dockerCompose.Deploy{Labels: &labels}
+        } else {
+          labels = append( labels, *service.Deploy.Labels... )
+          service.Deploy.Labels = &labels
+        }
+      } else {
+        labels = append( labels, *service.Labels... )
+        service.Labels = &labels
+      }
+      (*dockerComposeTemplate.Services)[serviceKey] = service
+      break
+    }
+  }
+}
+
 func checkAppSecurity( app *App, candidate *AppCandidate ) error {
   if utils.SliceIndex( len(candidate.Files), func(i int) bool {
     return candidate.Files[i] == "docker-compose.yaml"
   } ) > -1 {
 
+    isInSwarmMode, err := cyphernodeInfo.CyphernodeIsDockerSwarm()
+    if err != nil {
+      return err
+    }
+
     dockerComposeTemplate, err := dockerCompose.LoadDockerComposeTemplate(
-      filepath.Join(app.Path, globals.APP_VERSIONS_DIR, candidate.Version.Raw, "docker-compose.yaml" ) )
+      filepath.Join(app.Path, globals.APP_VERSIONS_DIR, candidate.Version.Raw, "docker-compose.yaml" ),
+      isInSwarmMode )
 
     if err != nil {
       return err

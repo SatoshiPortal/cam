@@ -26,9 +26,12 @@ package storage
 
 import (
   "encoding/json"
+  "github.com/SatoshiPortal/cam/cyphernodeInfo"
+  "github.com/SatoshiPortal/cam/errors"
   "github.com/SatoshiPortal/cam/globals"
   "github.com/SatoshiPortal/cam/utils"
   "github.com/SatoshiPortal/cam/version"
+  "io/ioutil"
   "path/filepath"
   "regexp"
   "strings"
@@ -276,5 +279,46 @@ func (app *App) UnmarshalJSON(data []byte) error {
       break
     }
   }
+  return nil
+}
+
+func (appCandidate *AppCandidate) IsRunnableOnThisCyphernode() error {
+
+  if !utils.CyphernodeInfoFileExists() {
+    return errors.CYPHERNODE_INFO_FILE_DOES_NOT_EXIST
+  }
+
+  var info cyphernodeInfo.CyphernodeInfo
+
+  cyphernodeInfoJsonBytes, err := ioutil.ReadFile( utils.GetCyphernodeInfoFilePath() )
+  if err != nil {
+    return err
+  }
+
+  err = json.Unmarshal( cyphernodeInfoJsonBytes, &info)
+  if err != nil {
+    return err
+  }
+
+  for _, dependency := range appCandidate.Dependencies {
+
+    if dependency.Label == "api" {
+      if utils.SliceIndex( len(info.ApiVersions), func(i int) bool {
+        return info.ApiVersions[i] == dependency.Version.Raw
+      } ) == -1 {
+        return errors.COMPAT_API
+      }
+    } else {
+      cyphernodeFeature := info.FindCyphernodeFeature( dependency.Label )
+      if cyphernodeFeature == nil || !cyphernodeFeature.Active {
+        return errors.COMPAT_MISSING_FEATURE
+      }
+
+      if !dependency.Version.IsCompatible(cyphernodeFeature.Docker.Version) {
+        return errors.COMPAT_FEATURE_VERSION
+      }
+    }
+  }
+
   return nil
 }
