@@ -26,7 +26,6 @@ package dockerCompose
 
 import (
   "fmt"
-  "github.com/SatoshiPortal/cam/cyphernodeInfo"
   "github.com/SatoshiPortal/cam/errors"
   "github.com/SatoshiPortal/cam/globals"
   "github.com/SatoshiPortal/cam/output"
@@ -74,9 +73,17 @@ type Service struct {
   Restart           *string `yaml:"restart,omitempty"`
 }
 
-// We only care about the labels right now
+type RestartPolicy struct {
+  Condition   *string `yaml:"condition,omitempty"`
+  Delay       *string `yaml:"delay,omitempty"`
+  MaxAttempts *int    `yaml:"max_attempts,omitempty"`
+  Window      *string `yaml:"window,omitempty"`
+}
+
+// We only care about the labels and restart_policy right now
 type Deploy struct {
-  Labels            *[]string `yaml:"labels,omitempty"`
+  Labels        *[]string      `yaml:"labels,omitempty"`
+  RestartPolicy *RestartPolicy `yaml:"restart_policy,omitempty"`
 }
 
 func LoadDockerComposeTemplate( path string, isInSwarmMode bool ) (*DockerComposeTemplate, error) {
@@ -91,11 +98,34 @@ func LoadDockerComposeTemplate( path string, isInSwarmMode bool ) (*DockerCompos
     return nil,err
   }
   dockerComposeTemplate.IsInSwarmMode = isInSwarmMode
-  dockerComposeTemplate.StripLabels()
+
+  for serviceKey, service := range *dockerComposeTemplate.Services {
+
+    if isInSwarmMode {
+      service.Restart = nil
+      if service.Deploy == nil {
+        service.Deploy = &Deploy{}
+      }
+      if service.Deploy.RestartPolicy == nil {
+        service.Deploy.RestartPolicy = &RestartPolicy{}
+      }
+      con := "any"
+      service.Deploy.RestartPolicy.Condition = &con
+    } else {
+      restart := "always"
+      service.Restart = &restart
+      service.Deploy = nil
+    }
+
+    (*dockerComposeTemplate.Services)[serviceKey]=service
+  }
+
+
+  dockerComposeTemplate.StripLabels( isInSwarmMode )
   return &dockerComposeTemplate,nil
 }
 
-func ( dockerComposeTemplate *DockerComposeTemplate ) StripLabels() {
+func ( dockerComposeTemplate *DockerComposeTemplate ) StripLabels( isInSwarmMode bool ) {
   // remove all docker labels, except some allowed ones from template
   // might be security risk, since they are directly read by
   // docker and we want control over what gets passed to
@@ -104,8 +134,6 @@ func ( dockerComposeTemplate *DockerComposeTemplate ) StripLabels() {
   // only labels in service.labels are used and rewritten for either
   // compose or swarm mode.
   // service.deploy.labels in the template are ignored
-
-  isInSwarmMode, _ := cyphernodeInfo.CyphernodeIsDockerSwarm()
 
   allowedLabels := func( labels *[]string ) *[]string {
     var newLabels []string

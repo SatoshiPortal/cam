@@ -55,10 +55,11 @@ const (
   SERVICE_NETWORK                         = "cyphernodeservicenet"
 )
 
+const DOCKER_COMPOSE_MIDDLEWARE_PATTERN = "^traefik\\.http\\.middlewares\\.(<%= *APP_ID *%>-\\w+?)\\."
+
 var (
   DOCKER_COMPOSE_ALLOWED_MAIN_SERVICE_LABELS = []string{
-    "^traefik\\.http\\.middlewares\\.<%= *APP_ID *%>-headers\\.headers\\.customrequestheaders\\.",
-    "^traefik\\.http\\.middlewares\\.<%= *APP_ID *%>-headers\\.headers\\.customresponseheaders\\.",
+    DOCKER_COMPOSE_MIDDLEWARE_PATTERN,
     "^traefik\\.http\\.services\\.<%= *APP_ID *%>\\.loadbalancer\\.server\\.port=\\d+",
   }
 )

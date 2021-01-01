@@ -72,8 +72,9 @@ func InstallApp( app *App, version *version.Version ) error {
     }
 
     // Check if mount point exists
-    if installedAppsIndex.MountPointHasCollision( app.MountPoint ) {
-      return errors.APP_MOUNTPOINT_BLOCKED
+    err := installedAppsIndex.MountPointHasCollision( app )
+    if err != nil {
+      return err
     }
 
     // Check if app is already installed
@@ -358,7 +359,6 @@ func createTraefikLabels( dockerComposeTemplate *dockerCompose.DockerComposeTemp
     globals.DOCKER_COMPOSE_LABEL_PASS_HOST_HEADER,
     globals.DOCKER_COMPOSE_LABEL_MOUNTPOINT_RULE,
     globals.DOCKER_COMPOSE_LABEL_ENTRYPOINTS,
-    globals.DOCKER_COMPOSE_LABEL_MIDDLEWARES,
     globals.DOCKER_COMPOSE_LABEL_ROUTER_SERVICE,
     globals.DOCKER_COMPOSE_LABEL_MW_STRIPPREXIX,
     globals.DOCKER_COMPOSE_LABEL_FORCE_SLASH,
@@ -370,15 +370,35 @@ func createTraefikLabels( dockerComposeTemplate *dockerCompose.DockerComposeTemp
       strings.Trim(serviceKey, " " ) )
 
     if foundMainService && err == nil {
+      //var middlewares []string
+      middlewareLabel := globals.DOCKER_COMPOSE_LABEL_MIDDLEWARES
+      middlewareRe := regexp.MustCompile( globals.DOCKER_COMPOSE_MIDDLEWARE_PATTERN )
+
       if isInSwarmMode {
         if service.Deploy == nil {
-          service.Deploy = &dockerCompose.Deploy{Labels: &labels}
-        } else {
-          labels = append( labels, *service.Deploy.Labels... )
-          service.Deploy.Labels = &labels
+          service.Deploy = &dockerCompose.Deploy{}
         }
+
+        for _, label := range *service.Deploy.Labels {
+          result := middlewareRe.FindAllStringSubmatch(label, -1)
+          if result != nil && len(result) > 0 && len( result[0] ) > 1 && !strings.Contains( middlewareLabel, result[0][1] ) {
+            middlewareLabel = middlewareLabel+","+result[0][1]
+          }
+        }
+
+        labels = append( labels, *service.Deploy.Labels... )
+        labels = append( labels,  middlewareLabel )
+        service.Deploy.Labels = &labels
+
       } else {
+        for _, label := range *service.Deploy.Labels {
+          result := middlewareRe.FindAllStringSubmatch(label, -1)
+          if result != nil && len(result) > 0 && len( result[0] ) > 1 && !strings.Contains( middlewareLabel, result[0][1] ) {
+            middlewareLabel = middlewareLabel+","+result[0][1]
+          }
+        }
         labels = append( labels, *service.Labels... )
+        labels = append( labels,  middlewareLabel )
         service.Labels = &labels
       }
       (*dockerComposeTemplate.Services)[serviceKey] = service
