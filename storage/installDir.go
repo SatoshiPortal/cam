@@ -371,34 +371,34 @@ func createTraefikLabels( dockerComposeTemplate *dockerCompose.DockerComposeTemp
 
     if foundMainService && err == nil {
       //var middlewares []string
-      middlewareLabel := globals.DOCKER_COMPOSE_LABEL_MIDDLEWARES
+      var middlewares []string //globals.DOCKER_COMPOSE_LABEL_MIDDLEWARES
       middlewareRe := regexp.MustCompile( globals.DOCKER_COMPOSE_MIDDLEWARE_PATTERN )
+
+      for _, label := range *service.Labels {
+        result := middlewareRe.FindAllStringSubmatch(label, -1)
+
+        if result != nil && len(result) > 0 && len( result[0] ) > 1  {
+          if utils.SliceIndex(len(middlewares), func( i int ) bool {
+            return result[0][1] == middlewares[i]
+          } ) != -1 {
+            continue
+          }
+          middlewares = append( middlewares, result[0][1] )
+        }
+      }
+
+      middlewares = append( middlewares, globals.DOCKER_COMPOSE_STRIPPREFIX_MIDDLEWARE )
+
+      labels = append( labels, *service.Labels... )
+      labels = append( labels, globals.DOCKER_COMPOSE_LABEL_MIDDLEWARES+strings.Join(middlewares, "," ) )
 
       if isInSwarmMode {
         if service.Deploy == nil {
           service.Deploy = &dockerCompose.Deploy{}
         }
-
-        for _, label := range *service.Deploy.Labels {
-          result := middlewareRe.FindAllStringSubmatch(label, -1)
-          if result != nil && len(result) > 0 && len( result[0] ) > 1 && !strings.Contains( middlewareLabel, result[0][1] ) {
-            middlewareLabel = middlewareLabel+","+result[0][1]
-          }
-        }
-
-        labels = append( labels, *service.Deploy.Labels... )
-        labels = append( labels,  middlewareLabel )
         service.Deploy.Labels = &labels
-
+        service.Labels = nil
       } else {
-        for _, label := range *service.Deploy.Labels {
-          result := middlewareRe.FindAllStringSubmatch(label, -1)
-          if result != nil && len(result) > 0 && len( result[0] ) > 1 && !strings.Contains( middlewareLabel, result[0][1] ) {
-            middlewareLabel = middlewareLabel+","+result[0][1]
-          }
-        }
-        labels = append( labels, *service.Labels... )
-        labels = append( labels,  middlewareLabel )
         service.Labels = &labels
       }
       (*dockerComposeTemplate.Services)[serviceKey] = service

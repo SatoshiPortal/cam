@@ -98,9 +98,9 @@ func LoadDockerComposeTemplate( path string, isInSwarmMode bool ) (*DockerCompos
     return nil,err
   }
   dockerComposeTemplate.IsInSwarmMode = isInSwarmMode
+  dockerComposeTemplate.StripLabels()
 
   for serviceKey, service := range *dockerComposeTemplate.Services {
-
     if isInSwarmMode {
       service.Restart = nil
       if service.Deploy == nil {
@@ -116,16 +116,12 @@ func LoadDockerComposeTemplate( path string, isInSwarmMode bool ) (*DockerCompos
       service.Restart = &restart
       service.Deploy = nil
     }
-
     (*dockerComposeTemplate.Services)[serviceKey]=service
   }
-
-
-  dockerComposeTemplate.StripLabels( isInSwarmMode )
   return &dockerComposeTemplate,nil
 }
 
-func ( dockerComposeTemplate *DockerComposeTemplate ) StripLabels( isInSwarmMode bool ) {
+func ( dockerComposeTemplate *DockerComposeTemplate ) StripLabels() {
   // remove all docker labels, except some allowed ones from template
   // might be security risk, since they are directly read by
   // docker and we want control over what gets passed to
@@ -149,33 +145,15 @@ func ( dockerComposeTemplate *DockerComposeTemplate ) StripLabels( isInSwarmMode
   }
 
   for serviceKey, service := range *dockerComposeTemplate.Services {
+    service.Deploy = nil
     foundMainService, err := regexp.MatchString(
       "^"+fmt.Sprintf(globals.DOCKER_COMPOSE_TEMPLATE_REGEXP_TEMPLATE, "APP_UPSTREAM_HOST" )+"$" ,
       strings.Trim(serviceKey, " " ) )
-
     if foundMainService && err == nil {
       // allow certain labels for main service
-      if isInSwarmMode {
-        if service.Deploy == nil {
-          service.Deploy = &Deploy{}
-        }
-        service.Deploy.Labels = allowedLabels( service.Labels )
-        service.Labels = nil
-      } else {
-        if service.Labels == nil {
-          service.Labels = &[]string{}
-        }
-        service.Labels = allowedLabels( service.Labels )
-        if service.Deploy != nil {
-          service.Deploy.Labels = nil
-        }
-      }
-
+      service.Labels = allowedLabels( service.Labels )
     } else {
       service.Labels = nil
-      if service.Deploy != nil {
-        service.Deploy.Labels = nil
-      }
     }
     (*dockerComposeTemplate.Services)[serviceKey] = service
   }
