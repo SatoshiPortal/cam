@@ -54,6 +54,12 @@ type App struct {
   ClientID string `json:"clientID,omitempty"`
   Secret string `json:"secret,omitempty"`
   Keys []*Key `json:"keys,omitempty"`
+  Meta *Meta `json:"meta,omitempty"`
+}
+
+type Meta struct {
+  Icon string `json:"icon,omitempty"`
+  Color string `json:"color,omitempty"`
 }
 
 type AppCandidate struct {
@@ -243,6 +249,18 @@ func (app *App) UnmarshalJSON(data []byte) error {
         return err
       }
       app.Keys = keys
+      break
+    case "meta":
+      keysJsonBytes, err := json.Marshal( value )
+      if err != nil {
+        return err
+      }
+      var meta Meta
+      err = json.Unmarshal( keysJsonBytes, &meta)
+      if err != nil {
+        return err
+      }
+      app.Meta = &meta
       break
     case "label":
       app.Label = value.(string)
