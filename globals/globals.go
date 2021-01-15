@@ -65,15 +65,16 @@ var (
 )
 
 const (
-  DOCKER_COMPOSE_LABEL_TRAEFIK_ENABLE   = "traefik.enable=true"
-  DOCKER_COMPOSE_LABEL_MOUNTPOINT_RULE  = "traefik.http.routers.<%= APP_ID %>.rule=PathPrefix(`/<%= APP_MOUNTPOINT %>`)"
-  DOCKER_COMPOSE_LABEL_ENTRYPOINTS      = "traefik.http.routers.<%= APP_ID %>.entrypoints=web,websecure"
-  DOCKER_COMPOSE_LABEL_MIDDLEWARES      = "traefik.http.routers.<%= APP_ID %>.middlewares="
-  DOCKER_COMPOSE_LABEL_ROUTER_SERVICE   = "traefik.http.routers.<%= APP_ID %>.service=<%= APP_ID %>"
-  DOCKER_COMPOSE_LABEL_MW_STRIPPREXIX   = "traefik.http.middlewares.<%= APP_ID %>-stripprefix.stripprefix.prefixes=/<%= APP_MOUNTPOINT %>,/<%= APP_MOUNTPOINT %>/"
-  DOCKER_COMPOSE_LABEL_FORCE_SLASH      = "traefik.http.middlewares.<%= APP_ID %>-stripprefix.stripprefix.forceSlash=true"
-  DOCKER_COMPOSE_LABEL_PASS_HOST_HEADER = "traefik.frontend.passHostHeader=true"
-  DOCKER_COMPOSE_STRIPPREFIX_MIDDLEWARE = "<%= APP_ID %>-stripprefix@docker"
+  DOCKER_COMPOSE_LABEL_TRAEFIK_ENABLE    = "traefik.enable=true"
+  DOCKER_COMPOSE_LABEL_MOUNTPOINT_RULE   = "traefik.http.routers.<%= APP_ID %>.rule=PathPrefix(`/<%= APP_MOUNTPOINT %>`)"
+  DOCKER_COMPOSE_LABEL_ENTRYPOINTS       = "traefik.http.routers.<%= APP_ID %>.entrypoints=web,websecure"
+  DOCKER_COMPOSE_LABEL_MIDDLEWARES       = "traefik.http.routers.<%= APP_ID %>.middlewares="
+  DOCKER_COMPOSE_LABEL_ROUTER_SERVICE    = "traefik.http.routers.<%= APP_ID %>.service=<%= APP_ID %>"
+  DOCKER_COMPOSE_LABEL_MW_STRIPPREXIX    = "traefik.http.middlewares.<%= APP_ID %>-stripprefix.stripprefix.prefixes=/<%= APP_MOUNTPOINT %>,/<%= APP_MOUNTPOINT %>/"
+  DOCKER_COMPOSE_LABEL_FORCE_SLASH       = "traefik.http.middlewares.<%= APP_ID %>-stripprefix.stripprefix.forceSlash=true"
+  DOCKER_COMPOSE_LABEL_PASS_HOST_HEADER  = "traefik.frontend.passHostHeader=true"
+  DOCKER_COMPOSE_STRIPPREFIX_MIDDLEWARE  = "<%= APP_ID %>-stripprefix@docker"
+  DOCKER_COMPOSE_FORWARD_AUTH_MIDDLEWARE = "forward-auth@file"
 )
 
 var (
