@@ -387,7 +387,7 @@ func createTraefikLabels( dockerComposeTemplate *dockerCompose.DockerComposeTemp
         }
       }
 
-      middlewares = append( middlewares, globals.DOCKER_COMPOSE_FORWARD_AUTH_MIDDLEWARE, globals.DOCKER_COMPOSE_STRIPPREFIX_MIDDLEWARE )
+      middlewares = append( middlewares, globals.DOCKER_COMPOSE_STRIPPREFIX_MIDDLEWARE, globals.DOCKER_COMPOSE_FORWARD_AUTH_MIDDLEWARE )
 
       labels = append( labels, *service.Labels... )
       labels = append( labels, globals.DOCKER_COMPOSE_LABEL_MIDDLEWARES+strings.Join(middlewares, "," ) )
