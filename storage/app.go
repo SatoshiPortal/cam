@@ -80,7 +80,7 @@ type Role struct {
 
 type AccessPolicy struct {
   Roles []string `json:"roles"`
-  Patterns []string `json:"resources"`
+  Patterns []string `json:"patterns"`
   Effect string `json:"effect"` // allow, deny
   Actions []string `json:"actions"` // get, post, delete, put, patch, options
 }
