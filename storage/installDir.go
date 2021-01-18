@@ -359,7 +359,11 @@ func createTraefikLabels( dockerComposeTemplate *dockerCompose.DockerComposeTemp
     globals.DOCKER_COMPOSE_LABEL_PASS_HOST_HEADER,
     globals.DOCKER_COMPOSE_LABEL_MOUNTPOINT_RULE,
     globals.DOCKER_COMPOSE_LABEL_ENTRYPOINTS,
+    globals.DOCKER_COMPOSE_LABEL_TLS,
     globals.DOCKER_COMPOSE_LABEL_ROUTER_SERVICE,
+    globals.DOCKER_COMPOSE_LABEL_ONION_MOUNTPOINT_RULE,
+    globals.DOCKER_COMPOSE_LABEL_ONION_ENTRYPOINTS,
+    globals.DOCKER_COMPOSE_LABEL_ONION_ROUTER_SERVICE,
     globals.DOCKER_COMPOSE_LABEL_MW_STRIPPREXIX,
     globals.DOCKER_COMPOSE_LABEL_FORCE_SLASH,
   }
@@ -391,6 +395,7 @@ func createTraefikLabels( dockerComposeTemplate *dockerCompose.DockerComposeTemp
 
       labels = append( labels, *service.Labels... )
       labels = append( labels, globals.DOCKER_COMPOSE_LABEL_MIDDLEWARES+strings.Join(middlewares, "," ) )
+      labels = append( labels, globals.DOCKER_COMPOSE_LABEL_ONION_MIDDLEWARES+strings.Join(middlewares, "," ) )
 
       if isInSwarmMode {
         if service.Deploy == nil {
