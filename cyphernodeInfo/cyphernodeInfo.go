@@ -35,17 +35,21 @@ import (
 )
 
 type CyphernodeInfo struct {
-  ApiVersions []string                  `json:"api_versions"`
-  Features []*CyphernodeFeature         `json:"features"`
-  OptionalFeatures []*CyphernodeFeature `json:"optional_features"`
-  BitcoinCoreVersion *version.Version   `json:"bitcoin_version"`
-  DockerMode string `json:"docker_mode"`
+  ApiVersions        []string             `json:"api_versions"`
+  Features           []*CyphernodeFeature `json:"features"`
+  OptionalFeatures   []*CyphernodeFeature `json:"optional_features"`
+  BitcoinCoreVersion *version.Version     `json:"bitcoin_version"`
+  DockerMode         string               `json:"docker_mode"`
 }
 
 type CyphernodeFeature struct {
-  Label string `json:"label"`
-  Active bool         `json:"active"`
-  Docker *DockerImage `json:"docker"`
+  Label    string                 `json:"label"`
+  Name     string                 `json:"name"`
+  Host     string                 `json:"host"`
+  Networks []string               `json:"networks"`
+  Active   bool                   `json:"active"`
+  Docker   *DockerImage           `json:"docker"`
+  Extra    map[string]interface{} `json:"extra"`
 }
 
 type DockerImage struct {
