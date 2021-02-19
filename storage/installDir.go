@@ -113,6 +113,16 @@ func InstallApp( app *App, version *version.Version ) error {
     return err
   }
 
+  if candidate.Directories != nil {
+    for _, directory := range candidate.Directories {
+      targetFilePath := filepath.Join( installDirPath, appHash, directory )
+      err = os.Mkdir(targetFilePath,0777)
+      if err != nil {
+        return err
+      }
+    }
+  }
+
   files :=  candidate.Files[:]
   files = append(files,globals.CANDIDATE_DESCRIPTION_FILE)
 
