@@ -250,6 +250,8 @@ func ( dockerComposeTemplate *DockerComposeTemplate ) CheckNetworks( trustZone s
     isLocalNetwork, _ := regexp.MatchString( "^"+clientID+"_", networkName )
 
     if networkName != globals.APPS_NETWORK &&
+       networkName != globals.CORE_NETWORK &&
+       networkName != globals.SERVICE_NETWORK &&
       !isLocalNetwork {
       return false
     }
