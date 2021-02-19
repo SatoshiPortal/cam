@@ -123,14 +123,14 @@ func InstallApp( app *App, version *version.Version ) error {
     }
   }
 
-  files :=  candidate.Files[:]
-  files = append(files,globals.CANDIDATE_DESCRIPTION_FILE)
+  files :=  candidate.Files
+  files[globals.CANDIDATE_DESCRIPTION_FILE]=globals.CANDIDATE_DESCRIPTION_FILE
 
-  for _, file := range files {
-    sourceFilePath := filepath.Join( app.Path, globals.APP_VERSIONS_DIR, candidate.Version.Raw, file )
-    targetFilePath := filepath.Join( installDirPath, appHash, file )
+  for sourceFile, targetFile := range files {
+    sourceFilePath := filepath.Join( app.Path, globals.APP_VERSIONS_DIR, candidate.Version.Raw, sourceFile )
+    targetFilePath := filepath.Join( installDirPath, appHash, targetFile )
 
-    if file == "docker-compose.yaml" {
+    if sourceFilePath == "docker-compose.yaml" {
       isInSwarmMode, err := cyphernodeInfo.CyphernodeIsDockerSwarm()
       if err != nil {
         return err
@@ -215,14 +215,14 @@ func UpdateApp( app *App, version *version.Version ) error {
 
   installDirPath := utils.GetInstallDirPath()
 
-  files :=  candidate.Files[:]
-  files = append(files,globals.CANDIDATE_DESCRIPTION_FILE)
+  files :=  candidate.Files
+  files[globals.CANDIDATE_DESCRIPTION_FILE] = globals.CANDIDATE_DESCRIPTION_FILE
 
-  for _, file := range files {
-    sourceFilePath := filepath.Join( app.Path, globals.APP_VERSIONS_DIR, candidate.Version.Raw, file )
-    targetFilePath := filepath.Join( installDirPath, appHash, file )
+  for sourceFile, targetFile := range files {
+    sourceFilePath := filepath.Join( app.Path, globals.APP_VERSIONS_DIR, candidate.Version.Raw, sourceFile )
+    targetFilePath := filepath.Join( installDirPath, appHash, targetFile )
 
-    if file == "docker-compose.yaml" {
+    if sourceFile == "docker-compose.yaml" {
       isInSwarmMode, err := cyphernodeInfo.CyphernodeIsDockerSwarm()
       if err != nil {
         return err
@@ -423,9 +423,8 @@ func createTraefikLabels( dockerComposeTemplate *dockerCompose.DockerComposeTemp
 }
 
 func checkAppSecurity( app *App, candidate *AppCandidate ) error {
-  if utils.SliceIndex( len(candidate.Files), func(i int) bool {
-    return candidate.Files[i] == "docker-compose.yaml"
-  } ) > -1 {
+
+  if _, exists := candidate.Files["docker-compose.yaml"]; exists {
 
     isInSwarmMode, err := cyphernodeInfo.CyphernodeIsDockerSwarm()
     if err != nil {

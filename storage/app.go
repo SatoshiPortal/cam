@@ -65,7 +65,7 @@ type Meta struct {
 type AppCandidate struct {
   Version *version.Version `json:"version"`
   Dependencies []*AppDependency `json:"dependencies"`
-  Files []string `json:"files"`
+  Files map[string]string `json:"files"`
   Directories []string `json:"directories"`
   AvailableRoles []*Role `json:"availableRoles"`
   AccessPolicies []*AccessPolicy `json:"accessPolicies"`
