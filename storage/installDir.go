@@ -116,10 +116,7 @@ func InstallApp( app *App, version *version.Version ) error {
   if candidate.Directories != nil {
     for _, directory := range candidate.Directories {
       targetFilePath := filepath.Join( installDirPath, appHash, directory )
-      err = os.Mkdir(targetFilePath,0777)
-      if err != nil {
-        return err
-      }
+      _ = os.Mkdir(targetFilePath,0777)
     }
   }
 
@@ -130,7 +127,7 @@ func InstallApp( app *App, version *version.Version ) error {
     sourceFilePath := filepath.Join( app.Path, globals.APP_VERSIONS_DIR, candidate.Version.Raw, sourceFile )
     targetFilePath := filepath.Join( installDirPath, appHash, targetFile )
 
-    if sourceFilePath == "docker-compose.yaml" {
+    if sourceFile == "docker-compose.yaml" {
       isInSwarmMode, err := cyphernodeInfo.CyphernodeIsDockerSwarm()
       if err != nil {
         return err
